@@ -164,14 +164,11 @@ public class Tablero extends java.util.Observable implements Serializable{
     
     public void reiniciar() throws InterruptedException{
         Ficha f = new Ficha("·");
-        FichaSwing fswing;
         
         for(int i=0; i<MAXFILAS; i++){
             for(int j=0; j<MAXCOLUMNAS; j++){
                 casillero[i][j] = f;
-                fswing = new FichaSwing(i*10+j,null);
                 setChanged();
-                notifyObservers(fswing);
                 
             }
         }

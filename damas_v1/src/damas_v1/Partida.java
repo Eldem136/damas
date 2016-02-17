@@ -27,9 +27,8 @@ import javax.swing.JOptionPane;
  */
 
 
-public class Partida implements Serializable, java.awt.event.ActionListener{
+public class Partida implements Serializable{
     private Tablero tablero;
-    private VistaTablero vista;
     private Jugador jugador1, jugador2;
     private int turno = 0, columna;
     private static int numTableros = 0;
@@ -63,69 +62,8 @@ public class Partida implements Serializable, java.awt.event.ActionListener{
     public void tablero(Tablero t){
         this.tablero = t;
     }
-    public void vista(VistaTablero v){
-        this.vista = v;
-    }
     
-    public void actionPerformed(ActionEvent e){
-       /* if(e.getActionCommand() == "Nueva Partida"){
-            try {
-                tablero.reiniciar();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-        else if(e.getActionCommand() == "Salir"){
-            System.exit(0);
-        }*/
-       
-       FichaSwing f = (FichaSwing) e.getSource();
-       Ficha ficha;
-       if(turno % 2 == 0){
-           ficha = jugador1.getFichaJugador();
-       }
-       else{
-           ficha = jugador2.getFichaJugador();
-       }
-       
-       int i = f.getPosicion();
-       // System.out.println("pulsado boton "+i);
-       if(i<10){
-           if(tablero.movimientoLegal(i+1) == CodigoError.NO_ERROR){
-               tablero.introducirFicha(i+1, ficha);
-               turno++;
-           }
-           
-       }
-       else{
-           if(i%10==9){
-               if(tablero.movimientoLegal(10) == CodigoError.NO_ERROR){
-                    tablero.introducirFicha(10,ficha);
-                    turno++;
-               }
-           }
-           else{
-               if(tablero.movimientoLegal((i+1)%10) == CodigoError.NO_ERROR){
-                    tablero.introducirFicha((i+1)%10, ficha);
-                    turno++;
-               }
-           }
-           
-       }
-       
-       
-       if(tablero.comprobar4enRaya()){
-            if(turno % 2 == 0){
-               vista.fin(jugador1);
-            }
-            else{
-               vista.fin(jugador2);
-            }
-           
-       }
-       
-       
-    }
+    
     
     public static Partida cargar(File partida){
         try{
