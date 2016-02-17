@@ -18,7 +18,7 @@ public class Tablero extends java.util.Observable implements Serializable{
     private Ficha[][] casillero;
     private static Ficha cVacia = new Ficha(".");
     private final int MAXFILAS = 8;
-    private final int MAXCOLUMNAS = 10;
+    private final int MAXCOLUMNAS = 8;
     
     
     
@@ -32,8 +32,37 @@ public class Tablero extends java.util.Observable implements Serializable{
                 casillero[i][j] = cVacia;
             }
         }
+        iniciarDamas();
     }
     
+    private void iniciarDamas(){
+        for(int fila = 0; fila<3; fila++){
+            if(fila%2==0){
+                for(int col=1; col<8; col+=2){
+                    casillero[fila][col] = new Ficha("x");
+                }
+            }
+            else{
+                for(int col=0; col<7; col+=2){
+                    casillero[fila][col] = new Ficha("x");
+                }
+            }
+        }
+        
+        for(int fila = 5; fila<8; fila++){
+            if(fila%2==0){
+                for(int col=1; col<8; col+=2){
+                    casillero[fila][col] = new Ficha("o");
+                }
+            }
+            else{
+                for(int col=0; col<8; col+=2){
+                    casillero[fila][col] = new Ficha("o");
+                }
+                
+            }
+        }
+    }
     
     public CodigoError movimientoLegal(int columna){
         /*El método columnaLLena(int columna) devuelve True si la columna en la
@@ -177,7 +206,7 @@ public class Tablero extends java.util.Observable implements Serializable{
    
     
     public void mostrarTablero(){
-        System.out.print("||-1--2--3--4--5--6--7--8--9--10||\n");
+        System.out.print("||-1--2--3--4--5--6--7--8-||\n");
         for(int i=0; i<MAXFILAS; i++){
             System.out.print("||");
             for(int j=0; j<MAXCOLUMNAS; j++){
@@ -185,7 +214,7 @@ public class Tablero extends java.util.Observable implements Serializable{
             }
             System.out.print("||\n");
         }
-        System.out.print("----------------------------------\n");
+        System.out.print("-----------------------------\n");
     }
     
 }

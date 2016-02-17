@@ -9,17 +9,15 @@ package damas_v1;
  *
  * @author diego
  */
-public class Damas {
+public class damas_v1 {
 
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        System.out.println("Esto es una prueba");
+        Tablero tablero = new Tablero(0);
+        tablero.mostrarTablero();
         
-        System.out.println("y esto es la segunda");
-        
-        System.out.println("y esto es la tercera");
     }
     
 }
