@@ -6,7 +6,7 @@
 package reglas;
 
 import utilidades.Movimiento;
-import damas.Tablero
+import damas.Tablero;
 /**
  *
  * @author diego
