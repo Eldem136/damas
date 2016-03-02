@@ -3,19 +3,20 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package damas_v1;
+package damas;
 
 /**
  *
- * @author diego
+ * @author Zeko
  */
-public class damas_v1 {
+public class Peon extends Ficha{
 
-    /**
-     * @param args the command line arguments
-     */
-    public static void main(String[] args) {
-        
+    public Peon(String color) {
+        super(color);
+    }
+    
+    public boolean mover(){
+        return true;
     }
     
 }
