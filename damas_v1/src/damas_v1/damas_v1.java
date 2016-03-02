@@ -15,8 +15,6 @@ public class damas_v1 {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        Tablero tablero = new Tablero(0);
-        tablero.mostrarTablero();
         
     }
     
