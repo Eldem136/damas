@@ -8,7 +8,7 @@ import utilidades.Movimiento;
 
 /**
  *
- * @author Zeko
+ * @author Ezequiel Barbudo, Diego Malo
  */
 public class Peon extends Ficha{
 
@@ -18,12 +18,10 @@ public class Peon extends Ficha{
     
     @Override
     public boolean mover(Movimiento mov){
-        
         int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
         int avanceCol = mov.getColFinal() - mov.getColInicial();
-        System.err.println(" - "+avanceFila+":"+avanceCol);
         if(this.getColor().equals(NEGRO)){
-            //mover hacia delante las fichas de abajo
+            //mover hacia adelante las fichas negras (arriba)
             if(avanceFila==1 && avanceCol==1){
                 return true;
             }
@@ -38,6 +36,7 @@ public class Peon extends Ficha{
             }
         }
         else if(this.getColor().equals(BLANCO)){
+            //mover hacia adelante las fichas blancas (abajo)
             if(avanceFila==-1 && avanceCol==1){
                 return true;
             }
@@ -51,9 +50,6 @@ public class Peon extends Ficha{
                 return true;
             }
         }
-        
-        
-        
         return false;
     }
     

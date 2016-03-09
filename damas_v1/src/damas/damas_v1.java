@@ -9,7 +9,7 @@ import reglas.*;
 import utilidades.Movimiento;
 /**
  *
- * @author diego
+ * @author Ezequiel Barbudo, Diego Malo
  */
 public class damas_v1 {
 
@@ -26,13 +26,17 @@ public class damas_v1 {
         
         System.out.println(".............................");
         
-        reglas.mover(new Movimiento(5, 0, 4, 1), tablero);
+        System.out.println("movemos 5,0 a 4,1");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(5, 0, 4, 1), tablero));
         System.out.println(tablero);
-        reglas.mover(new Movimiento(7, 0, 8, 1), tablero);
+        System.out.println("movemos 7,0 a 8,1");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(7, 0, 8, 1), tablero));
         System.out.println(tablero);
-        reglas.mover(new Movimiento(5, 2, 4, 1), tablero);
+        System.out.println("movemos 5,2 a 4,1");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(5, 2, 4, 1), tablero));
         System.out.println(tablero);
-        reglas.mover(new Movimiento(4, 1, 3, 1), tablero);
+        System.out.println("movemos 4,1 a 3,1");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(4, 1, 3, 1), tablero));
         System.out.println(tablero);
     }
     

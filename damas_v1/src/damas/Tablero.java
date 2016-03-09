@@ -6,7 +6,7 @@
 package damas;
 /**
  *
- * @author Zeko
+ * @author Ezequiel Barbudo, Diego Malo
  */
 public class Tablero {
     private final Ficha[][] casillero;
@@ -19,6 +19,11 @@ public class Tablero {
         casillero = new Ficha[MAX_FILAS][MAX_COL];
     }    
     
+    /**
+     * Coloca las fichas en el tablero siguiendo el reglamento español de las
+     * damas: 12 fichas de cada color, blancas abajo, negras arriba, 
+     * colocadas todas alternadas con un hueco entre medias
+     */
     public void colocarFichas(){
         int x; //filas
         int y; //columnas
@@ -54,22 +59,24 @@ public class Tablero {
         }
     }
     
+    /**
+     * Elimina del tablero todas las fichas que se han marcado como muertas
+     * @return 
+     */
     public boolean limpiarFichasMuertas(){
         return true;
     }
     
     @Override
     public String toString(){
-        String tablero = "";
-        String cabecero = "_";
+        String tablero = "_";
         char[] letras = {'A', 'B','C','D','E','F','G','H'};
         
         for(int i=0; i<MAX_COL; i++){
-            cabecero+= "| "+letras[i]+" ";
+            tablero+= "| "+letras[i]+" ";
         }
-        cabecero += "|\n";
-        cabecero += "----------------------------------";
-        System.out.println(cabecero);
+        tablero += "|\n";
+        tablero += "----------------------------------\n";
         for(int i=0; i<MAX_FILAS; i++){
             tablero += (8-i)+"|";
             for(int j=0; j<MAX_COL; j++){
@@ -81,8 +88,8 @@ public class Tablero {
     }
     
     /**
-     * @param fila
-     * @param col
+     * @param fila la fila
+     * @param col la columna
      * @return devuelve una ficha si y solo si las coordenadas especificadas
      * están dentro de los limites del tablero. En caso contrario devuelve null
      */
@@ -93,6 +100,13 @@ public class Tablero {
         return null;
     }
     
+    /**
+     * Elimina una ficha del tablero, si existe
+     * @param fila la fila
+     * @param col la columna
+     * @return true si elimina exitosamente la ficha, false si la posición 
+     * esta fuera de los limites del tablero
+     */
     public boolean quitarFicha(int fila, int col){
         if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
             casillero[fila][col] = new Peon("·");
@@ -101,6 +115,14 @@ public class Tablero {
         return false;
     }
     
+    /**
+     * coloca en el tablero una ficha en la posicion correspondiente
+     * @param fila la fila
+     * @param col la columna
+     * @param ficha la ficha a colocar en el tablero
+     * @return true si coloca la ficha, false si la posición esta fuera de los
+     * limites del tablero
+     */
     public boolean ponerFicha(int fila, int col, Ficha ficha){
         if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
             casillero[fila][col] = ficha;

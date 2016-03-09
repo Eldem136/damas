@@ -9,7 +9,7 @@ import utilidades.Movimiento;
 
 /**
  *
- * @author Zeko
+ * @author Ezequiel Barbudo, Diego Malo
  */
 public abstract class Ficha {
     public static String BLANCO = "O";
@@ -35,6 +35,13 @@ public abstract class Ficha {
         return true;
     }
     
+    /**
+     * comprueba si un movimiento es lógico para la ficha en cuestion, 
+     * sin inportar la posicion de la ficha ni la de las demas dentro 
+     * del tablero
+     * @param mov movimiento
+     * @return true si es un movimiento lógico, false en caso contrario
+     */
     public abstract boolean mover(Movimiento mov);
     
 }
