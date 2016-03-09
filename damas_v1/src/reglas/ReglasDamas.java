@@ -11,7 +11,7 @@ import damas.Tablero;
 public class ReglasDamas implements Reglas {
     
     public ReglasDamas (){
-        throw new UnsupportedOperationException("Not supported yet.");
+        
     }
 
     @Override

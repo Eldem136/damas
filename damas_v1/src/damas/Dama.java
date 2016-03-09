@@ -14,6 +14,7 @@ public class Dama extends Ficha {
     public Dama(String color) {
         super(color);
     }
+    @Override
     public boolean mover(){
         return true;
     }

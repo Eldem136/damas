@@ -15,6 +15,7 @@ public class Peon extends Ficha{
         super(color);
     }
     
+    @Override
     public boolean mover(){
         return true;
     }

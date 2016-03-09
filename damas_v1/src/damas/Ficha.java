@@ -31,4 +31,8 @@ public abstract class Ficha {
         return true;
     }
     
+    public boolean mover(){
+        return true;
+    }
+    
 }

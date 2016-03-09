@@ -23,7 +23,10 @@ public class Movimiento {
      * @param col2 la columna de la posicion final de la ficha
      */
     public Movimiento ( int fila1, int col1, int fila2, int col2 ) {
-
+        this.filaInicial = fila1;
+        this.colInicial = col1;
+        this.filaFinal = fila2;
+        this.colFinal = col2;
     }
 
     /**
