@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 package damas;
-
+import utilidades.Movimiento;
 /**
  *
  * @author Zeko
@@ -15,7 +15,7 @@ public class Dama extends Ficha {
         super(color);
     }
     @Override
-    public boolean mover(){
+    public boolean mover(Movimiento mov){
         return true;
     }
     

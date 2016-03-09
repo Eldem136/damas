@@ -4,15 +4,14 @@
  * and open the template in the editor.
  */
 package damas;
-
 /**
  *
  * @author Zeko
  */
 public class Tablero {
     private final Ficha[][] casillero;
-    private final int MAX_FILAS = 8;
-    private final int MAX_COL = 8;
+    public final int MAX_FILAS = 8;
+    public final int MAX_COL = 8;
     private int numFichasJ1 = 12;
     private int numFichasJ2 = 12;
     
@@ -31,10 +30,10 @@ public class Tablero {
                 }
                 else if(x>=0 && x<3){
                     if(x%2==0 && y%2!=0){
-                    casillero[x][y] = new Peon("X");
+                    casillero[x][y] = new Peon(Ficha.NEGRO);
                     }
                     else if(x%2!=0 && y%2==0){
-                        casillero[x][y] = new Peon("X");
+                        casillero[x][y] = new Peon(Ficha.NEGRO);
                     }
                     else{
                         casillero[x][y] = new Peon("·");
@@ -42,10 +41,10 @@ public class Tablero {
                 }
                 else{
                     if(x%2==0 && y%2!=0){
-                    casillero[x][y] = new Peon("O");
+                    casillero[x][y] = new Peon(Ficha.BLANCO);
                     }
                     else if(x%2!=0 && y%2==0){
-                        casillero[x][y] = new Peon("O");
+                        casillero[x][y] = new Peon(Ficha.BLANCO);
                     }
                     else{
                         casillero[x][y] = new Peon("·");
@@ -79,5 +78,34 @@ public class Tablero {
             tablero += "\n";
         }
         return tablero;
+    }
+    
+    /**
+     * @param fila
+     * @param col
+     * @return devuelve una ficha si y solo si las coordenadas especificadas
+     * están dentro de los limites del tablero. En caso contrario devuelve null
+     */
+    public Ficha getFicha(int fila, int col){
+        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
+            return casillero[fila][col];
+        }
+        return null;
+    }
+    
+    public boolean quitarFicha(int fila, int col){
+        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
+            casillero[fila][col] = new Peon("·");
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean ponerFicha(int fila, int col, Ficha ficha){
+        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
+            casillero[fila][col] = ficha;
+            return true;
+        }
+        return false;
     }
 }

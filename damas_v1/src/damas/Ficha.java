@@ -5,11 +5,15 @@
  */
 package damas;
 
+import utilidades.Movimiento;
+
 /**
  *
  * @author Zeko
  */
 public abstract class Ficha {
+    public static String BLANCO = "O";
+    public static String NEGRO = "X";
     private String color;
     private boolean muerta;
     
@@ -31,8 +35,6 @@ public abstract class Ficha {
         return true;
     }
     
-    public boolean mover(){
-        return true;
-    }
+    public abstract boolean mover(Movimiento mov);
     
 }
