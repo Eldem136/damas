@@ -14,6 +14,7 @@ import utilidades.Movimiento;
 public abstract class Ficha {
     public static String BLANCO = "O";
     public static String NEGRO = "X";
+    public static String VACIA = "·";
     private String color;
     private boolean muerta;
     
@@ -33,6 +34,10 @@ public abstract class Ficha {
     public boolean matar(){
         this.muerta = true;
         return true;
+    }
+    
+    public boolean estaVacia(){
+        return this.color.equals(VACIA);
     }
     
     /**

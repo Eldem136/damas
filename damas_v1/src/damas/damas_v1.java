@@ -38,6 +38,17 @@ public class damas_v1 {
         System.out.println("movemos 4,1 a 3,1");
         System.out.println("movemos: " + reglas.mover(new Movimiento(4, 1, 3, 1), tablero));
         System.out.println(tablero);
+        
+        System.out.println("Test matar:");
+        System.out.println("movemos 2,1 a 3,2");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(2, 1, 3, 2), tablero));
+        System.out.println(tablero);
+        System.out.println("movemos 3,2 a 5,0");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(3, 2, 5, 0), tablero));
+        System.out.println(tablero);
+        System.out.println("movemos 2,5 a 4,3");
+        System.out.println("movemos: " + reglas.mover(new Movimiento(2,5,4,3), tablero));
+        System.out.println(tablero);
     }
     
 }

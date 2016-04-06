@@ -21,7 +21,7 @@ public class Peon extends Ficha{
         int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
         int avanceCol = mov.getColFinal() - mov.getColInicial();
         if(this.getColor().equals(NEGRO)){
-            //mover hacia adelante las fichas negras (arriba)
+            //mover hacia adelante las fichas negras (hacia abajo)
             if(avanceFila==1 && avanceCol==1){
                 return true;
             }
@@ -36,7 +36,7 @@ public class Peon extends Ficha{
             }
         }
         else if(this.getColor().equals(BLANCO)){
-            //mover hacia adelante las fichas blancas (abajo)
+            //mover hacia adelante las fichas blancas (hacia arriba)
             if(avanceFila==-1 && avanceCol==1){
                 return true;
             }
