@@ -16,7 +16,11 @@ public class Dama extends Ficha {
     }
     @Override
     public boolean mover(Movimiento mov){
-        return true;
+        int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
+        int avanceCol = mov.getColFinal() - mov.getColInicial();
+        
+        //para el caso de la dama solo devuelve valido si el movimiento es diagonal
+        return avanceFila == avanceCol;
     }
     
 }
