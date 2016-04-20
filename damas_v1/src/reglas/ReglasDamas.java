@@ -28,6 +28,8 @@ public class ReglasDamas implements Reglas {
         tabl.ponerFicha(mov.getFilaFinal(), mov.getColFinal(), ficha);
         tabl.quitarFicha(mov.getFilaInicial(), mov.getColInicial());
         
+        tabl.limpiarFichasMuertas();
+        
         return true;
     }
 
@@ -69,7 +71,7 @@ public class ReglasDamas implements Reglas {
                 // se comprueba si el movimiento es de dos casillas y en caso de dos que coma una ficha rival
                 
                 if(Math.abs(avanceCol) == 2){
-                    // comprueba que el movimiento comer se realiza sobre una ficha
+                    // comprueba que el movimiento comer se realiza sobre una ficha válida
                     Ficha fichaComida = tabl.getFicha((mov.getFilaInicial())+avanceFila/2, (mov.getColInicial())+avanceCol/2);
                     if(fichaComida.estaVacia())
                         return false;

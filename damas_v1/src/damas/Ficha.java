@@ -28,6 +28,9 @@ public abstract class Ficha {
     }
     
     public boolean estaMuerta(){
+        if(this.estaVacia()){
+            return false;
+        }
         return this.muerta;
     }
     
@@ -38,6 +41,20 @@ public abstract class Ficha {
     
     public boolean estaVacia(){
         return this.color.equals(VACIA);
+    }
+    
+    @Override
+    public boolean equals(Object o){
+        Ficha otraFicha = (Ficha) o;
+        if(this.color == otraFicha.color){
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean mismoColor(String color){
+        System.out.println(this.color+"-"+color+":"+this.color.equals(color));
+        return this.color.equals(color);
     }
     
     /**

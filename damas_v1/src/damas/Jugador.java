@@ -13,7 +13,9 @@ public class Jugador {
     private String nombre;
     private String colorFicha;
     
-    public Jugador(){
+    public Jugador(String nombre, String color){
+        this.nombre = nombre;
+        this.colorFicha = color;
         
     }
     public String getNombre(){

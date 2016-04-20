@@ -57,5 +57,8 @@ public class Movimiento {
         return colFinal;
     }
     
+    public String toString(){
+        return "("+filaInicial+","+colInicial+")"+"("+filaFinal+","+colFinal+")";
+    }
     
 }

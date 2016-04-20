@@ -15,6 +15,8 @@ public class Tablero {
     private int numFichasJ1 = 12;
     private int numFichasJ2 = 12;
     
+    private Peon fVacia = new Peon(Ficha.VACIA);
+    
     public Tablero(){
         casillero = new Ficha[MAX_FILAS][MAX_COL];
     }    
@@ -64,13 +66,23 @@ public class Tablero {
      * @return 
      */
     public boolean limpiarFichasMuertas(){
+        if(casillero==null){
+            return false;
+        }
+        for(int x=0; x<MAX_FILAS; x++){
+            for(int y=0; y<MAX_COL; y++){
+                if(casillero[x][y].estaMuerta()){
+                    casillero[x][y] = fVacia;
+                }
+           }
+        }
         return true;
     }
     
     @Override
     public String toString(){
         String tablero = "_";
-        char[] letras = {'A', 'B','C','D','E','F','G','H'};
+        char[] letras = {'0', '1','2','3','4','5','6','7'};
         
         for(int i=0; i<MAX_COL; i++){
             tablero+= "| "+letras[i]+" ";
@@ -78,7 +90,7 @@ public class Tablero {
         tablero += "|\n";
         tablero += "----------------------------------\n";
         for(int i=0; i<MAX_FILAS; i++){
-            tablero += (8-i)+"|";
+            tablero += (i)+"|";
             for(int j=0; j<MAX_COL; j++){
                 tablero += " " + casillero[i][j].getColor() + " |";
             }
