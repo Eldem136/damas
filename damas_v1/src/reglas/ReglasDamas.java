@@ -25,8 +25,12 @@ public class ReglasDamas implements Reglas {
         if(! movimientoValido(mov, tabl))
             return false;
         
-        tabl.ponerFicha(mov.getFilaFinal(), mov.getColFinal(), ficha);
-        tabl.quitarFicha(mov.getFilaInicial(), mov.getColInicial());
+        tabl.moverFicha(mov);
+        
+        //comprueba que la ficha debe convertirse en dama y la convierte si es necesario
+        Ficha fichaFinal = tabl.getFicha(mov.getFilaFinal(), mov.getColFinal());
+        if(seHaceDama(fichaFinal, mov.getFilaFinal()))
+            tabl.cambiarADama(mov.getFilaFinal(), mov.getFilaInicial());
         
         tabl.limpiarFichasMuertas();
         
@@ -89,6 +93,10 @@ public class ReglasDamas implements Reglas {
     @Override
     public boolean hayGanador() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    private boolean seHaceDama(Ficha ficha, int fil) {
+        return (ficha instanceof Peon) && (fil==0 || fil == 7);
     }
 
     

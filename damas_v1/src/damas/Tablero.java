@@ -4,6 +4,9 @@
  * and open the template in the editor.
  */
 package damas;
+
+import utilidades.Movimiento;
+
 /**
  *
  * @author Ezequiel Barbudo, Diego Malo
@@ -92,7 +95,11 @@ public class Tablero {
         for(int i=0; i<MAX_FILAS; i++){
             tablero += (i)+"|";
             for(int j=0; j<MAX_COL; j++){
-                tablero += " " + casillero[i][j].getColor() + " |";
+                Ficha fichaAImprimir = casillero[i][j];
+                if (fichaAImprimir instanceof Peon)
+                    tablero += " " + casillero[i][j].getColor() + " |";
+                else if (fichaAImprimir instanceof Dama) 
+                    tablero += " \033[1m" + casillero[i][j].getColor() + "\033[0m |";
             }
             tablero += "\n";
         }
@@ -141,5 +148,35 @@ public class Tablero {
             return true;
         }
         return false;
+    }
+    
+    public boolean cambiarADama(int fila, int col) {
+        
+        //comprueba que hay ficha
+        if(casillero[fila][col].estaVacia()) 
+            return false;
+        
+        //crea la nueva dama
+        String color = casillero[fila][col].getColor();
+        casillero[fila][col] = new Dama(color);
+        
+        return true;
+    }
+    
+    public boolean moverFicha(Movimiento mov) {
+        
+        int fil1 = mov.getFilaInicial();
+        int col1 = mov.getColInicial();
+        int fil2 = mov.getFilaFinal();
+        int col2 = mov.getColFinal();
+        
+        //comprueba que hay ficha
+        if(casillero[fil1][col1].estaVacia()) 
+            return false;
+        
+        ponerFicha(fil2, col2, casillero[fil1][col1]);
+        quitarFicha(fil1, col1);
+        
+        return true;
     }
 }
