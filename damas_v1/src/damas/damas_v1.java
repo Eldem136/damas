@@ -19,24 +19,26 @@ public class damas_v1 {
     public static void main(String[] args) {
         Reglas reglas = new ReglasDamas();
         
-//        Partida p = new Partida("pepito", "josito", reglas);
-//        p.jugar();
+        Partida p = new Partida("pepito", "josito", reglas);
+       //p.jugar();
         
-        System.out.println("hola diegooo punto y coma \n");
-        Tablero tablero = new Tablero();
-        tablero.colocarFichas();
-        
-        System.out.println(tablero);
-        
-        System.out.println(".............................");
-        
-        tablero.quitarFicha(1, 0);
-        tablero.quitarFicha(0, 1);
-        tablero.ponerFicha(1, 0, new Peon(Ficha.BLANCO));
+//        System.out.println("hola diegooo punto y coma \n");
+//        Tablero tablero = new Tablero();
+//        tablero.colocarFichas();
+//        
+//        System.out.println(tablero);
+//        
+//        System.out.println(".............................");
+//        
+//            //Test Dama
+        p.tablero.quitarFicha(1, 0);
+        p.tablero.quitarFicha(0, 1);
+        p.tablero.ponerFicha(1, 0, new Peon(Ficha.BLANCO));
         System.out.println("Prueba de convertir a dama\nAntes");
-        System.out.println(tablero);
-        reglas.mover(new Movimiento(1, 0, 0 ,1), tablero);
-        System.out.println("Despues\n"+tablero);
+        System.out.println(p.tablero);
+        reglas.mover(new Movimiento(1, 0, 0 ,1), p.tablero);
+        System.out.println("Despues\n"+p.tablero);
+        p.jugar();
         
         
 //        System.out.println("movemos 5,0 a 4,1");

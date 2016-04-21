@@ -84,7 +84,10 @@ public class ReglasDamas implements Reglas {
                     else if(! fichaComida.getColor().equals(ficha.getColor()))
                         fichaComida.matar();
                 }
-            }
+            } else if(ficha instanceof Dama) {
+                //aun no implementado
+            } else
+                return false;
         }
 
         return true;

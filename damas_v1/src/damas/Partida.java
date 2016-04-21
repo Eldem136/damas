@@ -16,7 +16,7 @@ import utilidades.Movimiento;
 public class Partida {
     private Jugador jugador1;
     private Jugador jugador2;
-    private Tablero tablero;
+    public Tablero tablero;
     private Reglas reglas;
     private int turno;
     private boolean fin;

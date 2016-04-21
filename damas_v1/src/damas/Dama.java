@@ -20,7 +20,7 @@ public class Dama extends Ficha {
         int avanceCol = mov.getColFinal() - mov.getColInicial();
         
         //para el caso de la dama solo devuelve valido si el movimiento es diagonal
-        return avanceFila == avanceCol;
+        return Math.abs(avanceFila) == Math.abs(avanceCol);
     }
     
 }
