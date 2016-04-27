@@ -210,14 +210,9 @@ public class Tablero {
      *  verdadero en caso contrario
      */
     public boolean estaLaCasillaVacia(int fila, int columna) {
-        if ( 
-                fila < this.filaMinima ||
-                fila > this.filaMaxima ||
-                columna < this.columnaMinima ||
-                columna > this.columnaMaxima )
-        {
+        if ( ! posicionDentroTablero(fila, columna) )
             return false;
-        } else 
+        else 
             return casillero[fila][columna].estaVacia();
     }
     
@@ -232,18 +227,27 @@ public class Tablero {
      */
     public boolean fichaDelMismoColor(int fila, int columna, String color) {
         
-        if ( 
-                fila < this.filaMinima ||
-                fila > this.filaMaxima ||
-                columna < this.columnaMinima ||
-                columna > this.columnaMaxima )
-        {
+        if ( ! posicionDentroTablero(fila, columna) )
             return false;
-        } else if ( casillero[fila][columna].estaVacia() ) 
+        else if ( casillero[fila][columna].estaVacia() ) 
             return false;
         else
             return casillero[fila][columna].mismoColor(color);
         
+    }
+    
+    public void matarFicha (int fila, int columna) {
+        
+        if ( posicionDentroTablero(fila, columna) )
+            casillero[fila][columna].matar();
+        
+    }
+        
+    private boolean posicionDentroTablero(int fila, int columna) {
+        return ( fila >= this.filaMinima &&
+                fila <= this.filaMaxima &&
+                columna >= this.columnaMinima &&
+                columna <= this.columnaMaxima );
     }
     
     /**

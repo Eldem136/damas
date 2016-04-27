@@ -56,12 +56,19 @@ public class Partida {
             System.out.println( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             do {
                 movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCO : Ficha.NEGRO );
-                movimientoValido =reglas.movimientoValido(movimiento, tablero);
+                movimientoValido = reglas.movimientoValido(movimiento, tablero);
                 if(!movimientoValido){
                     consola.imprimirError("No es un movimiento valido");
                 }
             }while(!movimientoValido);
-                
+            
+            tablero.moverFicha(movimiento);
+            
+            comerFicha(movimiento);
+            
+            hacerDama(movimiento);
+            
+            tablero.limpiarFichasMuertas();
             
         }while(!fin);
         
@@ -101,12 +108,40 @@ public class Partida {
             
             coordenadasMovimiento[posicionEnVectorCoordenadas++] = columnaAuxiliar;
         }
+        
+        if ( ! tablero.fichaDelMismoColor(coordenadasMovimiento[0], coordenadasMovimiento[1], color) ) {
+            consola.imprimirError("Esa ficha no es de tu color");
+            return leerMovimiento(color);
+        }
             
         return new Movimiento(
             coordenadasMovimiento[0], // fila inicial
             coordenadasMovimiento[1], // columna inicial
             coordenadasMovimiento[2], // fila final
             coordenadasMovimiento[3]);// columna final
+    }
+    
+    private void comerFicha(Movimiento movimiento) {
+        
+        int[] coordenadasFichaComida = 
+                reglas.comeFicha(movimiento, tablero);
+        
+        System.err.println(coordenadasFichaComida[0]+","+coordenadasFichaComida[1]);
+        tablero.matarFicha(coordenadasFichaComida[0], coordenadasFichaComida[1]);
+        
+    }
+    
+    private void hacerDama(Movimiento movimiento) {
+        
+        int fila = movimiento.getFilaFinal();
+        int columna = movimiento.getColFinal();
+        
+        Ficha ficha = tablero.getFicha(fila, columna);
+        
+        
+        if ( reglas.seTransforma(ficha, fila, tablero) )
+            tablero.cambiarADama(fila, columna);
+        
     }
 
 }

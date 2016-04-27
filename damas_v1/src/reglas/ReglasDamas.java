@@ -45,6 +45,11 @@ public class ReglasDamas implements Reglas {
         int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
         int avanceCol = mov.getColFinal() - mov.getColInicial();
         
+        int filaInicial = mov.getFilaInicial();
+        int columnaInicial = mov.getColInicial();
+        int filaFinal = mov.getFilaFinal();
+        int columnaFinal = mov.getColFinal();
+        
         // comprobar que la ficha existe
         if(ficha == null){
             return false;
@@ -59,34 +64,21 @@ public class ReglasDamas implements Reglas {
         }
         // comprueba que el movimiento sigue las reglas del juego
         else{
+            
             // comprobar si el movimiento está dentro del tablero.
-            if(mov.getFilaFinal()>=tabl.MAX_FILAS || mov.getFilaFinal()<0){
+            if( filaFinal > tabl.getFilaMaxima() || filaFinal < tabl.getFilaMinima() ){
                 return false;
             }
-            if(mov.getColFinal()>=tabl.MAX_COL || mov.getColFinal()<0){
+            if( columnaFinal > tabl.getColumnaMaxima()|| columnaFinal < tabl.getColumnaMinima() ){
                 return false;
             }
             // comprueba que se mueve a un espacio vacio
-            if(! tabl.getFicha(mov.getFilaFinal(), mov.getColFinal()).estaVacia())
+            if ( ! tabl.estaLaCasillaVacia(filaFinal, columnaFinal) )
                 return false;
             
-            // En caso de que la ficha sea un peon
-            if(ficha instanceof Peon){
-                // se comprueba si el movimiento es de dos casillas y en caso de dos que coma una ficha rival
-                
-                if(Math.abs(avanceCol) == 2){
-                    // comprueba que el movimiento comer se realiza sobre una ficha válida
-                    Ficha fichaComida = tabl.getFicha((mov.getFilaInicial())+avanceFila/2, (mov.getColInicial())+avanceCol/2);
-                    if(fichaComida.estaVacia())
-                        return false;
-                    else if(fichaComida.getColor().equals(ficha.getColor()))
-                        return false;
-                    else if(! fichaComida.getColor().equals(ficha.getColor()))
-                        fichaComida.matar();
-                }
-            } else if(ficha instanceof Dama) {
-                //aun no implementado
-            } else
+            // se comprueba si el movimiento es de dos casillas y en caso de dos que coma una ficha rival
+
+            if ( ! SaltoDeFichaCorrecto(mov, tabl) ) 
                 return false;
         }
 
@@ -98,7 +90,8 @@ public class ReglasDamas implements Reglas {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
-    public boolean seHaceDama(Ficha ficha, int fila, Tablero tablero) {
+    @Override
+    public boolean seTransforma(Ficha ficha, int fila, Tablero tablero) {
         
         //si es un peon
         if ( ficha.puedeTransformarse() ) {
@@ -113,24 +106,20 @@ public class ReglasDamas implements Reglas {
         return false;
     }
     
-    /**
-     * si un movimiento come una ficha la indica
-     * @param movimiento movimiento realizado
-     * @param tablero tablero donde se ejecuta el movimiento
-     * @param colorQueCome color de la ficha que esta comiendo
-     * @return la fila y columna de la ficha que se come y un array que 
-     *  contiene {-1,-1} si no come ninguna ficha
-     */
-    public int[] comeFicha(Movimiento movimiento, Tablero tablero, 
-            String colorQueCome) {
+    @Override
+    public int[] comeFicha(Movimiento movimiento, Tablero tablero) {
         
-        int[] fichaComida = {-1, -1};
+        int[] fichaComida = 
+            {tablero.getFilaMinima()-1, tablero.getColumnaMinima()-1};
         
-        int filaInicia = movimiento.getFilaInicial();
+        int filaInicial = movimiento.getFilaInicial();
         int columnaInicial = movimiento.getColInicial();
         
-        int avanceFila = movimiento.getFilaFinal() - filaInicia;
+        int avanceFila = movimiento.getFilaFinal() - filaInicial;
         int avanceColumna = movimiento.getColFinal() - columnaInicial;
+        
+        String colorQueCome = 
+                tablero.getFicha(filaInicial, columnaInicial).getColor();
         
         // si se avanza en diagonal
         if ( Math.abs(avanceFila) == Math.abs(avanceColumna) ) {
@@ -139,7 +128,7 @@ public class ReglasDamas implements Reglas {
                 // para todas las casillas por las que pasa
                 for ( int i = 1; i < Math.abs(avanceFila); i++ ) {
                     
-                    int filaInvestigada = filaInicia + 
+                    int filaInvestigada = filaInicial + 
                             ( i * (int) Math.signum(avanceFila) );
                     int columnaInvestigada = columnaInicial + 
                             ( i * (int) Math.signum(avanceColumna) );
@@ -160,6 +149,48 @@ public class ReglasDamas implements Reglas {
         return fichaComida;
     }
 
-    
+    /**
+     * comprueba que en el caso de que se salte una ficha lo haga por encima 
+     * de una sola ficha y del color contrario
+     * @param movimiento el movimiento de la ficha
+     * @return true si salta una unica ficha y del color contrario o ninguna
+     */
+    private boolean SaltoDeFichaCorrecto(Movimiento movimiento, Tablero tablero) {
+        
+        int filaInicial = movimiento.getFilaInicial();
+        int columnaInicial = movimiento.getColInicial();
+        int filaFinal = movimiento.getFilaFinal();
+        int columnaFinal = movimiento.getColFinal();
+        
+        int avanceFila = filaFinal - filaInicial;
+        int avanceColumna = columnaFinal - columnaInicial;
+        
+        boolean enemigoEncontrado = false;
+        boolean movimientoCorrecto = true;
+        
+        String colorDeFicha = 
+                tablero.getFicha(filaInicial, columnaInicial).getColor();
+        
+        for ( int i = 1; i < Math.abs(avanceFila) && movimientoCorrecto ; i++ ) {
+                    
+            int filaInvestigada = filaInicial + 
+                    ( i * (int) Math.signum(avanceFila) );
+            int columnaInvestigada = columnaInicial + 
+                    ( i * (int) Math.signum(avanceColumna) );
+
+            if ( ! tablero.estaLaCasillaVacia( filaInvestigada, 
+                    columnaInvestigada ) ) {
+                if ( ! tablero.fichaDelMismoColor(filaInvestigada, columnaInvestigada, colorDeFicha)) {
+                    if ( ! enemigoEncontrado ) {
+                        enemigoEncontrado = true;
+                    } else 
+                        movimientoCorrecto = false;
+                } else if ( tablero.fichaDelMismoColor(filaInvestigada, columnaInvestigada, colorDeFicha)) {
+                    movimientoCorrecto = false;
+                }
+            }
+        }
+        return movimientoCorrecto;
+    }
     
 }
