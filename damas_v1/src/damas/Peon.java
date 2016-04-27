@@ -53,4 +53,9 @@ public class Peon extends Ficha{
         return false;
     }
     
+    @Override
+    public boolean puedeTransformarse() {
+        return true;
+    }
+    
 }

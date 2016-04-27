@@ -66,4 +66,6 @@ public abstract class Ficha {
      */
     public abstract boolean mover(Movimiento mov);
     
+    public abstract boolean puedeTransformarse();
+    
 }

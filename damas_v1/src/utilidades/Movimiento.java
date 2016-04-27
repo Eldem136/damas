@@ -15,6 +15,9 @@ public class Movimiento {
     private int filaFinal;
     private int colFinal;
     
+    public static final int NUMERO_COORDENADAS_EN_MOVIMIENTO = 2;
+    public static final int NUMERO_COMPONENETES_COORDENADA = 2;
+    
     /**
      * 
      * @param fila1 la fila de la posicion actual de la ficha

@@ -6,7 +6,7 @@
 package damas;
 import reglas.Reglas;
 import reglas.ReglasDamas;
-import utilidades.InputReader;
+import utilidades.Consola;
 import utilidades.Movimiento;
 
 /**
@@ -21,7 +21,7 @@ public class Partida {
     private int turno;
     private boolean fin;
     
-    private InputReader lectorConsola;
+    private Consola consola;
     
     public Partida(String n1, String n2, Reglas reglas){
         this.tablero = new Tablero();
@@ -30,7 +30,7 @@ public class Partida {
         this.reglas = reglas;
         this.turno = 0;
         this.fin = false;
-        this.lectorConsola = new InputReader();
+        this.consola = new Consola();
         
         this.tablero.colocarFichas();
         
@@ -45,51 +45,68 @@ public class Partida {
     }
     
     public void jugar(){
-        Movimiento mov;
-        boolean movValido;
-        System.out.println( tablero.toString());
+        Movimiento movimiento;
+        boolean movimientoValido;
         
         do{
             turno++;
-            if(turno%2==1){  //turno del jugador blanco.
-                System.out.println("TURNO DEL JUGADOR BLANCO");
-                do {
-                    mov = leerMovimiento(Ficha.BLANCO);
-                    movValido =reglas.mover(mov, tablero);
-                    if(!movValido){
-                        System.err.println("No es un movimiento valido");
-                    }
-                }while(!movValido);
-                
-            }
-            else{
-                System.out.println("TURNO DEL JUGADOR NEGRO");
-                do {
-                    mov = leerMovimiento(Ficha.NEGRO);
-                    movValido =reglas.mover(mov, tablero);
-                    if(!movValido){
-                        System.err.println("No es un movimiento valido");
-                    }
-                }while(!movValido);
-                
-            }
             System.out.println(tablero.toString());
+            
+            System.out.print("TURNO DEL JUGADOR: ");
+            System.out.println( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
+            do {
+                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCO : Ficha.NEGRO );
+                movimientoValido =reglas.movimientoValido(movimiento, tablero);
+                if(!movimientoValido){
+                    consola.imprimirError("No es un movimiento valido");
+                }
+            }while(!movimientoValido);
+                
+            
         }while(!fin);
         
     }
     
     
     private Movimiento leerMovimiento(String color) {
-        Movimiento mov;
-        boolean fichaNoValida;
-        do{
-            mov = lectorConsola.leeMov();
-            fichaNoValida = mov == null ||
-                !tablero.getFicha(mov.getFilaInicial(), mov.getColInicial()).mismoColor(color);
-            if(fichaNoValida) System.err.println("La ficha seleccionada no es válida");
-        }while(fichaNoValida);
+
+        int[] coordenadasMovimiento;
+        coordenadasMovimiento = new int[ Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO * 2 ];
+        int posicionEnVectorCoordenadas = 0;
         
-        return mov;
+        for ( int i = 0; i < Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO ; i++ ) {
+            int filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
+            while ( 
+                    filaAuxiliar < tablero.getFilaMinima() || 
+                    filaAuxiliar > tablero.getFilaMaxima() ) {
+                
+                consola.imprimirLinea("Error, la fila debe estar comprendida entre " 
+                        + tablero.getFilaMinima() + " y " 
+                        + tablero.getFilaMaxima() + "\n");
+                filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
+            }
+            
+            coordenadasMovimiento[posicionEnVectorCoordenadas++] = filaAuxiliar;
+            
+            int columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
+            while ( 
+                    columnaAuxiliar < tablero.getColumnaMinima()|| 
+                    columnaAuxiliar > tablero.getColumnaMaxima()) {
+                
+                consola.imprimirLinea("Error, la columna debe estar comprendida entre " 
+                        + tablero.getColumnaMinima()+ " y " 
+                        + tablero.getColumnaMaxima()+ "\n");
+                columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
+            }
+            
+            coordenadasMovimiento[posicionEnVectorCoordenadas++] = columnaAuxiliar;
+        }
+            
+        return new Movimiento(
+            coordenadasMovimiento[0], // fila inicial
+            coordenadasMovimiento[1], // columna inicial
+            coordenadasMovimiento[2], // fila final
+            coordenadasMovimiento[3]);// columna final
     }
 
 }

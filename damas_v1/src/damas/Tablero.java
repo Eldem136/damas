@@ -13,16 +13,30 @@ import utilidades.Movimiento;
  */
 public class Tablero {
     private final Ficha[][] casillero;
-    public final int MAX_FILAS = 8;
-    public final int MAX_COL = 8;
+    private static final int MAX_FILAS = 8;
+    private static final int MAX_COL = 8;
+    
+    private int filaMinima = 0;
+    private int columnaMinima = 0;
+    private int filaMaxima = MAX_FILAS - 1;
+    private int columnaMaxima = MAX_COL - 1;
+    
     private int numFichasJ1 = 12;
     private int numFichasJ2 = 12;
     
     private Peon fVacia = new Peon(Ficha.VACIA);
     
     public Tablero(){
-        casillero = new Ficha[MAX_FILAS][MAX_COL];
-    }    
+        this(Tablero.MAX_FILAS, Tablero.MAX_COL);
+    }
+    
+    public Tablero(int filas, int columnas) {
+        
+        casillero = new Ficha[filas][columnas];
+        filaMaxima = filas - 1;
+        columnaMaxima = columnas - 1;
+        
+    }
     
     /**
      * Coloca las fichas en el tablero siguiendo el reglamento español de las
@@ -170,8 +184,15 @@ public class Tablero {
         int fil2 = mov.getFilaFinal();
         int col2 = mov.getColFinal();
         
+        int avanceFila = fil2 - fil1;
+        int avanceColumna = col2 - col1;
+        
         //comprueba que hay ficha
-        if(casillero[fil1][col1].estaVacia()) 
+        if( casillero[fil1][col1].estaVacia() ) 
+            return false;
+        
+        //comprobamos que la posicion final no esta ocupada ya
+        if ( ! casillero[fil2][col2].estaVacia() )
             return false;
         
         ponerFicha(fil2, col2, casillero[fil1][col1]);
@@ -179,4 +200,80 @@ public class Tablero {
         
         return true;
     }
+
+    /**
+     * Retorna si la posicion indicada esta vacia
+     * @param fila la fila de la posicion en el tablero
+     * @param columna la columna de la posicion en el tablero
+     * @return falso si la posicion indicada contiene una ficha o 
+     *  esta fuera de los limites del tablero
+     *  verdadero en caso contrario
+     */
+    public boolean estaLaCasillaVacia(int fila, int columna) {
+        if ( 
+                fila < this.filaMinima ||
+                fila > this.filaMaxima ||
+                columna < this.columnaMinima ||
+                columna > this.columnaMaxima )
+        {
+            return false;
+        } else 
+            return casillero[fila][columna].estaVacia();
+    }
+    
+    /**
+     * Retorna si la ficha es del mismo color
+     * @param fila la fila de la ficha en el tablero
+     * @param columna la columna de la ficha en el tablero
+     * @param color el color a comprobar
+     * @return falso si la ficha indicada en las coordenadas es de otro color, 
+     *  esta vacia o si las coordenadas indican una posicion fuera del tablero
+     *  verdadero en caso contrario
+     */
+    public boolean fichaDelMismoColor(int fila, int columna, String color) {
+        
+        if ( 
+                fila < this.filaMinima ||
+                fila > this.filaMaxima ||
+                columna < this.columnaMinima ||
+                columna > this.columnaMaxima )
+        {
+            return false;
+        } else if ( casillero[fila][columna].estaVacia() ) 
+            return false;
+        else
+            return casillero[fila][columna].mismoColor(color);
+        
+    }
+    
+    /**
+     * @return the filaMinima
+     */
+    public int getFilaMinima() {
+        return filaMinima;
+    }
+
+    /**
+     * @return the columnaMinima
+     */
+    public int getColumnaMinima() {
+        return columnaMinima;
+    }
+
+    /**
+     * @return the filaMaxima
+     */
+    public int getFilaMaxima() {
+        return filaMaxima;
+    }
+
+    /**
+     * @return the columnaMaxima
+     */
+    public int getColumnaMaxima() {
+        return columnaMaxima;
+    }
+
+    
+    
 }

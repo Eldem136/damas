@@ -23,4 +23,9 @@ public class Dama extends Ficha {
         return Math.abs(avanceFila) == Math.abs(avanceCol);
     }
     
+    @Override
+    public boolean puedeTransformarse() {
+        return false;
+    }
+    
 }

@@ -12,12 +12,12 @@ import java.util.Scanner;
  *
  * @author Zeko
  */
-public class InputReader {
+public class Consola {
     
     
     
     Scanner scan;
-    public InputReader(){
+    public Consola(){
         scan = new Scanner(System.in);
     }
     
@@ -66,6 +66,58 @@ public class InputReader {
         }
         
         return new Movimiento(fil1, col1, fil2, col2);
+        
+    }
+    
+    public Movimiento leerMovimiento () {
+        
+        int[] posicionesTablero = new int[4];
+        
+        for ( int i = 0; i < 4; i++ ) {
+            
+            System.out.println("Introduzca input: ");
+            posicionesTablero[i] = scan.nextInt();
+            
+        }
+        
+        
+        
+        return new Movimiento(
+                posicionesTablero[0], // fila inicial
+                posicionesTablero[1], // columna inicial
+                posicionesTablero[2], // fila final
+                posicionesTablero[3]);// columna final
+    }
+    
+    public int leerNumero(String preguntaUsuario) {
+        
+        System.out.println(preguntaUsuario);
+        
+        try {
+            return scan.nextInt();
+        } catch (InputMismatchException ex) {
+            System.err.println("No ha sido introducido un numero, por favor introduce un numero");
+            scan.next(); //descartamos el tokken siguiente porque no es un numero
+            return leerNumero(preguntaUsuario);
+        }
+        
+    }
+    
+    public void imprimir(String texto) {
+        
+        System.out.print(texto);
+        
+    }
+    
+    public void imprimirLinea(String texto) {
+        
+        System.out.println(texto);
+        
+    }
+    
+    public void imprimirError(String texto) {
+        
+        System.err.println(texto);
         
     }
     

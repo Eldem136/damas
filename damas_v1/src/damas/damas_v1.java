@@ -20,7 +20,7 @@ public class damas_v1 {
         Reglas reglas = new ReglasDamas();
         
         Partida p = new Partida("pepito", "josito", reglas);
-       //p.jugar();
+        p.jugar();
         
 //        System.out.println("hola diegooo punto y coma \n");
 //        Tablero tablero = new Tablero();
@@ -31,15 +31,15 @@ public class damas_v1 {
 //        System.out.println(".............................");
 //        
 //            //Test Dama
-        p.tablero.quitarFicha(1, 0);
-        p.tablero.quitarFicha(0, 1);
-        p.tablero.ponerFicha(1, 0, new Peon(Ficha.BLANCO));
-        System.out.println("Prueba de convertir a dama\nAntes");
-        System.out.println(p.tablero);
-        reglas.mover(new Movimiento(1, 0, 0 ,1), p.tablero);
-        System.out.println("Despues\n"+p.tablero);
-        p.jugar();
-        
+//        p.tablero.quitarFicha(1, 0);
+//        p.tablero.quitarFicha(0, 1);
+//        p.tablero.ponerFicha(1, 0, new Peon(Ficha.BLANCO));
+//        System.out.println("Prueba de convertir a dama\nAntes");
+//        System.out.println(p.tablero);
+//        reglas.mover(new Movimiento(1, 0, 0 ,1), p.tablero);
+//        System.out.println("Despues\n"+p.tablero);
+//        p.jugar();
+//        
         
 //        System.out.println("movemos 5,0 a 4,1");
 //        System.out.println("movemos: " + reglas.mover(new Movimiento(5, 0, 4, 1), tablero));
