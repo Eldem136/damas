@@ -5,6 +5,7 @@
  */
 package utilidades;
 
+import java.io.Serializable;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
@@ -12,11 +13,11 @@ import java.util.Scanner;
  *
  * @author Zeko
  */
-public class Consola {
+public class Consola implements Serializable {
     
     
     
-    Scanner scan;
+    private transient Scanner scan;
     public Consola(){
         scan = new Scanner(System.in);
     }
@@ -99,8 +100,15 @@ public class Consola {
             System.err.println("No ha sido introducido un numero, por favor introduce un numero");
             scan.next(); //descartamos el tokken siguiente porque no es un numero
             return leerNumero(preguntaUsuario);
+        } catch (NullPointerException ex) {
+            scan.next(); //descartamos el tokken siguiente porque no es un numero
+            return leerNumero(preguntaUsuario);
         }
         
+    }
+    
+    public String leerLinea(String preguntaUsuario){
+        return scan.nextLine();
     }
     
     public void imprimir(String texto) {

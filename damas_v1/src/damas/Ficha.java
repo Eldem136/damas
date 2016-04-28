@@ -5,13 +5,14 @@
  */
 package damas;
 
+import java.io.Serializable;
 import utilidades.Movimiento;
 
 /**
  *
  * @author Ezequiel Barbudo, Diego Malo
  */
-public abstract class Ficha {
+public abstract class Ficha implements Serializable{
     public static String BLANCO = "O";
     public static String NEGRO = "X";
     public static String VACIA = "·";

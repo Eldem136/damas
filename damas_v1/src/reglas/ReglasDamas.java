@@ -6,12 +6,13 @@ import damas.Tablero;
 import damas.Ficha;
 import damas.Peon;
 import damas.Dama;
+import java.io.Serializable;
 
 /**
  *
  * @author Ezequiel Barbudo, Diego Malo
  */
-public class ReglasDamas implements Reglas {
+public class ReglasDamas implements Reglas, Serializable{
     
     public ReglasDamas (){
         

@@ -5,6 +5,11 @@
  */
 package damas;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.InputMismatchException;
+import java.util.Scanner;
+import oracle.jrockit.jfr.tools.ConCatRepository;
 import reglas.*;
 import utilidades.Movimiento;
 /**
@@ -12,15 +17,40 @@ import utilidades.Movimiento;
  * @author Ezequiel Barbudo, Diego Malo
  */
 public class damas_v1 {
+    private static String[] ficheros;
+    private static int eleccion;
+    private static Scanner scan2 = new Scanner(System.in);
 
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
-        Reglas reglas = new ReglasDamas();
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
         
-        Partida p = new Partida("pepito", "josito", reglas);
-        p.jugar();
+        Reglas reglas = new ReglasDamas();
+        Scanner scan = new Scanner(System.in);
+        
+        System.out.println("Damas_V1 \n-------------------------------");
+        System.out.println("1 - Nueva partida.\n2 - Cargar Partida");
+        System.out.println("-------------------------------");
+        int opcion = scan.nextInt();
+        
+        File directorio = new File("partidasGuardadas");
+        if(!directorio.isDirectory()){
+            directorio.mkdir();
+        } 
+        
+        if(opcion ==1){
+            new Partida("jugador1", "jugador2", reglas).jugar();
+        }
+        else if(opcion == 2){
+                    Partida.cargar().jugar();
+                }
+        }
+        
+        
+        
+        
+        
         
 //        System.out.println("hola diegooo punto y coma \n");
 //        Tablero tablero = new Tablero();
@@ -76,6 +106,6 @@ public class damas_v1 {
         
     
         
-    }
+    
     
 }

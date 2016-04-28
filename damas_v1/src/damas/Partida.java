@@ -4,6 +4,14 @@
  * and open the template in the editor.
  */
 package damas;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import reglas.Reglas;
 import reglas.ReglasDamas;
 import utilidades.Consola;
@@ -13,7 +21,7 @@ import utilidades.Movimiento;
  *
  * @author Zeko
  */
-public class Partida {
+public class Partida implements Serializable{
     private Jugador jugador1;
     private Jugador jugador2;
     public Tablero tablero;
@@ -21,7 +29,7 @@ public class Partida {
     private int turno;
     private boolean fin;
     
-    private Consola consola;
+    private transient Consola consola;
     
     public Partida(String n1, String n2, Reglas reglas){
         this.tablero = new Tablero();
@@ -30,25 +38,41 @@ public class Partida {
         this.reglas = reglas;
         this.turno = 0;
         this.fin = false;
-        this.consola = new Consola();
         
         this.tablero.colocarFichas();
         
     }
     
-    public boolean guardar(){
+    public void iniciarConsola() {
+        this.consola = new Consola();
+    }
+    
+    public static boolean guardar(Partida partida) throws IOException{        
+        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("partidasGuardadas/j1_VS_j2.dat"));
+        out.writeObject(partida);
+        out.close();
         return true;
     }
     
-    public boolean cargar(){
-        return true;
+    public static Partida cargar() throws IOException, ClassNotFoundException{
+        ObjectInputStream in = new ObjectInputStream(
+            new FileInputStream("partidasGuardadas/j1_VS_j2.dat"));
+        Partida partida = (Partida) in.readObject();
+        in.close();
+        return partida;
+
     }
     
-    public void jugar(){
+    public void jugar() throws IOException{
         Movimiento movimiento;
         boolean movimientoValido;
-        
+        iniciarConsola();
         do{
+            
+                
+                this.guardar(this);
+                consola.imprimirLinea("PARTIDA GUARDADA");
+            
             turno++;
             System.out.println(tablero.toString());
             
@@ -69,6 +93,8 @@ public class Partida {
             hacerDama(movimiento);
             
             tablero.limpiarFichasMuertas();
+            
+            
             
         }while(!fin);
         

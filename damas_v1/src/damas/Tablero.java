@@ -5,13 +5,14 @@
  */
 package damas;
 
+import java.io.Serializable;
 import utilidades.Movimiento;
 
 /**
  *
  * @author Ezequiel Barbudo, Diego Malo
  */
-public class Tablero {
+public class Tablero implements Serializable {
     private final Ficha[][] casillero;
     private static final int MAX_FILAS = 8;
     private static final int MAX_COL = 8;
