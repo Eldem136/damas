@@ -5,15 +5,19 @@
  */
 package damas;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Zeko
  */
-public class Jugador {
+public class Jugador implements Serializable{
     private String nombre;
     private String colorFicha;
     
-    public Jugador(){
+    public Jugador(String nombre, String color){
+        this.nombre = nombre;
+        this.colorFicha = color;
         
     }
     public String getNombre(){
