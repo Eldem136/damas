@@ -1,7 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * damas_v1.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
 
@@ -12,16 +12,15 @@ import java.util.Scanner;
 import oracle.jrockit.jfr.tools.ConCatRepository;
 import reglas.*;
 import utilidades.Movimiento;
-/**
- *
- * @author Ezequiel Barbudo, Diego Malo
- */
+
 public class damas_v1 {
     private static String[] ficheros;
     private static int eleccion;
     private static Scanner scan2 = new Scanner(System.in);
 
     /**
+     * main
+     * 
      * @param args the command line arguments
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException {
@@ -38,15 +37,15 @@ public class damas_v1 {
         if(!directorio.isDirectory()){
             directorio.mkdir();
         } 
-        
+     
         if(opcion ==1){
             new Partida("jugador1", "jugador2", reglas).jugar();
-        }
+    }
         else if(opcion == 2){
                     Partida.cargar().jugar();
                 }
         }
-        
+    
         
         
         

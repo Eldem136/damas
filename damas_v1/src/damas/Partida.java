@@ -1,27 +1,21 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Partida.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import reglas.Reglas;
-import reglas.ReglasDamas;
 import utilidades.Consola;
 import utilidades.Movimiento;
 
-/**
- *
- * @author Zeko
- */
-public class Partida implements Serializable{
+public class Partida implements Serializable {
+    
     private Jugador jugador1;
     private Jugador jugador2;
     public Tablero tablero;
@@ -33,27 +27,42 @@ public class Partida implements Serializable{
     
     public Partida(String n1, String n2, Reglas reglas){
         this.tablero = new Tablero();
-        this.jugador1 = new Jugador(n1, Ficha.BLANCO);
-        this.jugador2 = new Jugador(n2, Ficha.NEGRO);
+        this.jugador1 = new Jugador(n1, Ficha.BLANCA);
+        this.jugador2 = new Jugador(n2, Ficha.NEGRA);
         this.reglas = reglas;
         this.turno = 0;
         this.fin = false;
         
         this.tablero.colocarFichas();
-        
     }
     
+    /**
+     * inicializa la entrada salida por teclado y consola
+     */
     public void iniciarConsola() {
         this.consola = new Consola();
     }
     
-    public static boolean guardar(Partida partida) throws IOException{        
-        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("partidasGuardadas/j1_VS_j2.dat"));
+    /**
+     * Guarda la partida en un nuevo fichero
+     * 
+     * @param partida la partida que se guarda
+     * @throws IOException 
+     */
+    public static void guardar(Partida partida) throws IOException{        
+        ObjectOutputStream out = new ObjectOutputStream(
+                new FileOutputStream("partidasGuardadas/j1_VS_j2.dat"));
         out.writeObject(partida);
         out.close();
-        return true;
     }
     
+    /**
+     * Carga una partida comenzada anteriormente
+     * 
+     * @return la partida que ha sido cargada
+     * @throws IOException 
+     * @throws ClassNotFoundException 
+     */
     public static Partida cargar() throws IOException, ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(
             new FileInputStream("partidasGuardadas/j1_VS_j2.dat"));
@@ -62,24 +71,26 @@ public class Partida implements Serializable{
         return partida;
 
     }
-    
+    /**
+     * Comienza una partida
+     * 
+     * @throws IOException 
+     */
     public void jugar() throws IOException{
         Movimiento movimiento;
         boolean movimientoValido;
         iniciarConsola();
         do{
-            
-                
-                this.guardar(this);
-                consola.imprimirLinea("PARTIDA GUARDADA");
+            this.guardar(this);
+            consola.imprimirLinea("PARTIDA GUARDADA");
             
             turno++;
-            System.out.println(tablero.toString());
+            consola.imprimirLinea(tablero.toString());
             
-            System.out.print("TURNO DEL JUGADOR: ");
-            System.out.println( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
+            consola.imprimir("TURNO DEL JUGADOR: ");
+            consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             do {
-                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCO : Ficha.NEGRO );
+                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
                 movimientoValido = reglas.movimientoValido(movimiento, tablero);
                 if(!movimientoValido){
                     consola.imprimirError("No es un movimiento valido");
@@ -94,13 +105,17 @@ public class Partida implements Serializable{
             
             tablero.limpiarFichasMuertas();
             
-            
+            fin = finalizaLaPartida();
             
         }while(!fin);
-        
     }
     
-    
+    /**
+     * Lee un nuevo movimiento que sea del color del jugador indicado
+     * 
+     * @param color color que debe tener la ficha que moveremos
+     * @return el movimiento, que debe pertenecer al jugador actual
+     */
     private Movimiento leerMovimiento(String color) {
 
         int[] coordenadasMovimiento;
@@ -147,16 +162,26 @@ public class Partida implements Serializable{
             coordenadasMovimiento[3]);// columna final
     }
     
+    /**
+     * comprueba si el movimiento realizado se come alguna ficha enemiga y ejecuta la accion de matarla
+     * 
+     * @param movimiento el movimiento que realizamos
+     */
     private void comerFicha(Movimiento movimiento) {
         
         int[] coordenadasFichaComida = 
                 reglas.comeFicha(movimiento, tablero);
         
-        System.err.println(coordenadasFichaComida[0]+","+coordenadasFichaComida[1]);
         tablero.matarFicha(coordenadasFichaComida[0], coordenadasFichaComida[1]);
         
     }
     
+    /**
+     * comprueba si despues del movimiento la ficha sobre la que lo hemos realizado 
+     * se convierte en una dama y si es asi la convertimos
+     * 
+     * @param movimiento el movimiento que realizamos
+     */
     private void hacerDama(Movimiento movimiento) {
         
         int fila = movimiento.getFilaFinal();
@@ -168,6 +193,26 @@ public class Partida implements Serializable{
         if ( reglas.seTransforma(ficha, fila, tablero) )
             tablero.cambiarADama(fila, columna);
         
+    }
+    
+    /**
+     * comprobamos si finaliza la partida, en el casi de que si indicamos de ello por la consola asignada
+     * 
+     * @return 
+     * true si la partida finaliza
+     * false si la partida no finaliza
+     */
+    private boolean finalizaLaPartida() {
+        int ganador = reglas.hayGanador(tablero, jugador1.getColorFicha());
+        
+        if ( ganador == Reglas.SIN_GANADOR )
+            return false;
+        
+        consola.imprimir("Gana el jugador ");
+        consola.imprimirLinea(ganador == Reglas.GANADOR_JUGADOR_1 ? 
+                jugador1.getNombre() : jugador2.getNombre());
+        
+        return true;
     }
 
 }

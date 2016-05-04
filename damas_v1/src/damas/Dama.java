@@ -1,31 +1,34 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * damas.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
 import utilidades.Movimiento;
-/**
- *
- * @author Zeko
- */
+
 public class Dama extends Ficha {
 
-    public Dama(String color) {
-        super(color);
-    }
-    @Override
-    public boolean mover(Movimiento mov){
-        int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
-        int avanceCol = mov.getColFinal() - mov.getColInicial();
-        
-        //para el caso de la dama solo devuelve valido si el movimiento es diagonal
-        return Math.abs(avanceFila) == Math.abs(avanceCol);
+    /**
+     * Crea una nueva ficha de tipo Dama
+     * @param color de la dama
+     */
+    public Dama(String color) { 
+        super(color, false);
     }
     
+    /**
+     * Comprueba si es un movimiento del tipo de ficha dama
+     * 
+     * @param movimiento movimiento a comprobar
+     * @return 
+     * true si el movimiento es valido
+     */
     @Override
-    public boolean puedeTransformarse() {
-        return false;
+    public boolean mover(Movimiento movimiento){
+        int avanceFila = movimiento.getFilaFinal() - movimiento.getFilaInicial();
+        int avanceCol = movimiento.getColFinal() - movimiento.getColInicial();
+        
+        return Math.abs(avanceFila) == Math.abs(avanceCol);
     }
     
 }
