@@ -13,10 +13,10 @@ public class Tablero implements Serializable {
     private static final int MAX_FILAS = 8;
     private static final int MAX_COL = 8;
     
-    private int filaMinima = 0;
-    private int columnaMinima = 0;
-    private int filaMaxima = MAX_FILAS - 1;
-    private int columnaMaxima = MAX_COL - 1;
+    private int filaMinima;
+    private int columnaMinima;
+    private int filaMaxima;
+    private int columnaMaxima;
     
     private final Peon fVacia = new Peon(Ficha.VACIA);
     
@@ -34,6 +34,8 @@ public class Tablero implements Serializable {
      * @param columnas numero de columnas
      */
     public Tablero(int filas, int columnas) {
+        this.columnaMinima = 0;
+        this.filaMinima = 0;
         
         casillero = new Ficha[filas][columnas];
         filaMaxima = filas - 1;
@@ -50,16 +52,16 @@ public class Tablero implements Serializable {
         int x; //filas
         int y; //columnas
         
-        for(x=0; x<MAX_FILAS; x++){
-            for(y=0; y<MAX_COL; y++){
-                if(x==3 || x==4){
+        for ( x = filaMinima; x <= filaMaxima; x++ ) {
+            for ( y = columnaMinima; y <= columnaMaxima; y++ ) {
+                if ( x == 3 || x == 4 ) {
                     casillero[x][y] = new Peon("·");
                 }
-                else if(x>=0 && x<3){
-                    if(x%2==0 && y%2!=0){
+                else if ( x >= 0 && x < 3 ) {
+                    if ( x % 2 == 0 && y % 2 != 0 ) {
                     casillero[x][y] = new Peon(Ficha.NEGRA);
                     }
-                    else if(x%2!=0 && y%2==0){
+                    else if ( x % 2 != 0 && y % 2 == 0 ) {
                         casillero[x][y] = new Peon(Ficha.NEGRA);
                     }
                     else{
@@ -67,10 +69,10 @@ public class Tablero implements Serializable {
                     }
                 }
                 else{
-                    if(x%2==0 && y%2!=0){
+                    if ( x % 2 == 0 && y % 2 != 0 ) {
                     casillero[x][y] = new Peon(Ficha.BLANCA);
                     }
-                    else if(x%2!=0 && y%2==0){
+                    else if ( x % 2 != 0 && y % 2 == 0 ) {
                         casillero[x][y] = new Peon(Ficha.BLANCA);
                     }
                     else{
@@ -100,14 +102,14 @@ public class Tablero implements Serializable {
         String tablero = "_";
         char[] letras = {'0', '1','2','3','4','5','6','7'};
         
-        for(int i=0; i<MAX_COL; i++){
+        for ( int i = columnaMinima; i <= columnaMaxima; i++){
             tablero+= "| "+letras[i]+" ";
         }
         tablero += "|\n";
         tablero += "----------------------------------\n";
-        for ( int i = 0; i < MAX_FILAS; i++ ) { 
+        for ( int i = filaMinima; i <= filaMaxima; i++ ) { 
             tablero += (i)+"|";
-            for ( int j = 0; j < MAX_COL; j++ ) {
+            for ( int j = columnaMinima; j <= columnaMaxima; j++ ) {
                 Ficha fichaAImprimir = casillero[i][j];
                 if ( fichaAImprimir.isTransformable() )
                     tablero += " " + casillero[i][j].getColor() + " |";
@@ -123,29 +125,29 @@ public class Tablero implements Serializable {
      * Obtiene la ficha situada en la fila y colunma indicadas
      * 
      * @param fila la fila
-     * @param col la columna
+     * @param columna la columna
      * @return 
      * la ficha si las fichas estan dentro de las coordenadas del tablero
      * null si las coordenadas indicadas no corresponden a una posicion dentro del tablero
      */
-    public Ficha getFicha(int fila, int col){
-        if ( fila >= 0 && fila < MAX_FILAS && col >= 0 && col < MAX_COL ) {
-            return casillero[fila][col];
-        }
-        return null;
+    public Ficha getFicha(int fila, int columna){
+        if ( posicionDentroTablero(fila, columna) )
+            return casillero[fila][columna];
+        else
+            return null;
     }
     
     /**
      * Elimina una ficha del tablero, si existe
      * 
      * @param fila la fila
-     * @param col la columna
+     * @param columna la columna
      * @return true si elimina exitosamente la ficha, false si la posición 
      * esta fuera de los limites del tablero
      */
-    public boolean quitarFicha(int fila, int col){
-        if ( fila >= 0 && fila < MAX_FILAS && col >= 0 && col < MAX_COL ) {
-            casillero[fila][col] = new Peon("·");
+    public boolean quitarFicha(int fila, int columna){
+        if ( posicionDentroTablero(fila, columna) ) {
+            casillero[fila][columna] = new Peon("·");
             return true;
         }
         return false;
@@ -155,15 +157,15 @@ public class Tablero implements Serializable {
      * coloca en el tablero una ficha en la posicion correspondiente
      * 
      * @param fila la fila
-     * @param col la columna
+     * @param columna la columna
      * @param ficha la ficha a colocar en el tablero
      * @return 
      * true si coloca la ficha
      * false si la posición esta fuera de los limites del tablero
      */
-    public boolean ponerFicha(int fila, int col, Ficha ficha){
-        if ( fila >= 0 && fila < MAX_FILAS && col >= 0 && col < MAX_COL ) {
-            casillero[fila][col] = ficha;
+    public boolean ponerFicha(int fila, int columna, Ficha ficha){
+        if ( posicionDentroTablero(fila, columna) ) {
+            casillero[fila][columna] = ficha;
             return true;
         }
         return false;

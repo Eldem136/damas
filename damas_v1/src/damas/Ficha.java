@@ -9,14 +9,21 @@ import java.io.Serializable;
 import utilidades.Movimiento;
 
 public abstract class Ficha implements Serializable{
+    /* colores posibles de las fichas */
     public static final String BLANCA = "O";
     public static final String NEGRA=  "X";
     public static final String VACIA = "·";
+    
+    /* atributos de una ficha */
     private final String color;
     private boolean muerta;
-    
     private final boolean transformable;
     
+    /**
+     * Crea una nueva ficha
+     * @param color el color
+     * @param puedeTransformarse si la ficha puede transformarse o no
+     */
     public Ficha(String color, boolean puedeTransformarse){
         this.color = color;
         this.muerta = false;
@@ -40,7 +47,7 @@ public abstract class Ficha implements Serializable{
      * false si no esta muerta o esta vacia
      */
     public boolean estaMuerta(){
-        if(this.estaVacia()){
+        if ( this.estaVacia() ) {
             return false;
         }
         return this.muerta;

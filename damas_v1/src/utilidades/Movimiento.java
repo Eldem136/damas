@@ -58,7 +58,8 @@ public class Movimiento {
     
     @Override
     public String toString(){
-        return "("+filaInicial+","+colInicial+")"+"("+filaFinal+","+colFinal+")";
+        return "(" + filaInicial + "," + colInicial + ")" +
+                "(" + filaFinal + "," + colFinal + ")";
     }
     
 }

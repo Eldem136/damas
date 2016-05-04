@@ -28,7 +28,7 @@ public class ReglasDamas implements Reglas, Serializable {
         int filaFinal = movimiento.getFilaFinal();
         int columnaFinal = movimiento.getColFinal();
         
-        if(ficha == null)
+        if ( ficha == null )
             return false;
         /* 
         comprueba que el movimiento indicado es lógico según la ficha, 
@@ -60,6 +60,7 @@ public class ReglasDamas implements Reglas, Serializable {
      */
     @Override
     public int hayGanador(Tablero tablero, String idJugador1) {
+        
         int fichasJugador1 = 0;
         int fichasJugador2 = 0;
         int x;
@@ -101,14 +102,14 @@ public class ReglasDamas implements Reglas, Serializable {
     public boolean seTransforma(Ficha ficha, int fila, Tablero tablero) {
         
         //si es un peon
-        if ( ficha.isTransformable()) {
+        if ( ficha.isTransformable() ) {
             // si es blanca y esta en la fila superior
-            if ( ficha.mismoColor(Ficha.BLANCA) 
-                    && fila == tablero.getFilaMinima() )
+            if ( ficha.mismoColor(Ficha.BLANCA) && 
+                    fila == tablero.getFilaMinima() )
                 return true;
             // si es negra y esta en la fila inferior
-            else if ( ficha.mismoColor(Ficha.NEGRA) 
-                    && fila == tablero.getFilaMaxima() )
+            else if ( ficha.mismoColor(Ficha.NEGRA) && 
+                    fila == tablero.getFilaMaxima() )
                 return true;
         }
         

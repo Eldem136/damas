@@ -13,6 +13,9 @@ public class Consola implements Serializable {
     
     private final transient Scanner scan;
     
+    /**
+     * crea un nuevo lector de texto desde System.in
+     */
     public Consola(){
         scan = new Scanner(System.in);
     }

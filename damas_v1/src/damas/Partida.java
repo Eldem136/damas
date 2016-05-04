@@ -16,19 +16,31 @@ import utilidades.Movimiento;
 
 public class Partida implements Serializable {
     
+    /* jugadores en la partida */
     private Jugador jugador1;
     private Jugador jugador2;
+    
+    /* atributos de la partida */
     public Tablero tablero;
     private Reglas reglas;
     private int turno;
     private boolean fin;
     
+    /* consola que se emplea para la comunicacion por linea de comandos */
     private transient Consola consola;
     
-    public Partida(String n1, String n2, Reglas reglas){
+    /**
+     * Crea una nueva partida con un nuevo tablero, dos jugadores nuevos 
+     * y las reglas suministradas
+     * 
+     * @param nombre1 el nombre del jugador 1
+     * @param nombre2 el nombre del jugador 2
+     * @param reglas las reglas que se seguiran en la partida
+     */
+    public Partida(String nombre1, String nombre2, Reglas reglas){
         this.tablero = new Tablero();
-        this.jugador1 = new Jugador(n1, Ficha.BLANCA);
-        this.jugador2 = new Jugador(n2, Ficha.NEGRA);
+        this.jugador1 = new Jugador(nombre1, Ficha.BLANCA);
+        this.jugador2 = new Jugador(nombre2, Ficha.NEGRA);
         this.reglas = reglas;
         this.turno = 0;
         this.fin = false;
@@ -37,7 +49,7 @@ public class Partida implements Serializable {
     }
     
     /**
-     * inicializa la entrada salida por teclado y consola
+     * inicializa la entrada/salida por teclado y consola
      */
     public void iniciarConsola() {
         this.consola = new Consola();
@@ -73,6 +85,10 @@ public class Partida implements Serializable {
     }
     /**
      * Comienza una partida
+     * La partida consiste en una iteracion hasta que hay un ganador
+     * El bucle guarda la partida antes de cada turno, muestra el teclado, 
+     * pide un movimiento y comprueba que sea válido, mueve la ficha, comprueba 
+     * si se comen fichas o se combierten damas y si se termina la partida
      * 
      * @throws IOException 
      */
@@ -95,7 +111,7 @@ public class Partida implements Serializable {
                 if(!movimientoValido){
                     consola.imprimirError("No es un movimiento valido");
                 }
-            }while(!movimientoValido);
+            } while ( ! movimientoValido );
             
             tablero.moverFicha(movimiento);
             
@@ -107,7 +123,7 @@ public class Partida implements Serializable {
             
             fin = finalizaLaPartida();
             
-        }while(!fin);
+        } while ( ! fin );
     }
     
     /**
@@ -117,15 +133,13 @@ public class Partida implements Serializable {
      * @return el movimiento, que debe pertenecer al jugador actual
      */
     private Movimiento leerMovimiento(String color) {
-
         int[] coordenadasMovimiento;
         coordenadasMovimiento = new int[ Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO * 2 ];
         int posicionEnVectorCoordenadas = 0;
         
-        for ( int i = 0; i < Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO ; i++ ) {
+        for ( int i = 0; i < Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO; i++ ) {
             int filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
-            while ( 
-                    filaAuxiliar < tablero.getFilaMinima() || 
+            while ( filaAuxiliar < tablero.getFilaMinima() || 
                     filaAuxiliar > tablero.getFilaMaxima() ) {
                 
                 consola.imprimirLinea("Error, la fila debe estar comprendida entre " 
@@ -133,12 +147,10 @@ public class Partida implements Serializable {
                         + tablero.getFilaMaxima() + "\n");
                 filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
             }
-            
             coordenadasMovimiento[posicionEnVectorCoordenadas++] = filaAuxiliar;
             
             int columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
-            while ( 
-                    columnaAuxiliar < tablero.getColumnaMinima()|| 
+            while ( columnaAuxiliar < tablero.getColumnaMinima()|| 
                     columnaAuxiliar > tablero.getColumnaMaxima()) {
                 
                 consola.imprimirLinea("Error, la columna debe estar comprendida entre " 
@@ -146,15 +158,12 @@ public class Partida implements Serializable {
                         + tablero.getColumnaMaxima()+ "\n");
                 columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
             }
-            
             coordenadasMovimiento[posicionEnVectorCoordenadas++] = columnaAuxiliar;
         }
-        
         if ( ! tablero.fichaDelMismoColor(coordenadasMovimiento[0], coordenadasMovimiento[1], color) ) {
             consola.imprimirError("Esa ficha no es de tu color");
             return leerMovimiento(color);
         }
-            
         return new Movimiento(
             coordenadasMovimiento[0], // fila inicial
             coordenadasMovimiento[1], // columna inicial
@@ -163,7 +172,8 @@ public class Partida implements Serializable {
     }
     
     /**
-     * comprueba si el movimiento realizado se come alguna ficha enemiga y ejecuta la accion de matarla
+     * comprueba si el movimiento realizado se come alguna ficha enemiga 
+     * y ejecuta la accion de matarla
      * 
      * @param movimiento el movimiento que realizamos
      */
@@ -209,8 +219,8 @@ public class Partida implements Serializable {
             return false;
         
         consola.imprimir("Gana el jugador ");
-        consola.imprimirLinea(ganador == Reglas.GANADOR_JUGADOR_1 ? 
-                jugador1.getNombre() : jugador2.getNombre());
+        consola.imprimirLinea( ganador == Reglas.GANADOR_JUGADOR_1 ? 
+                jugador1.getNombre() : jugador2.getNombre() );
         
         return true;
     }

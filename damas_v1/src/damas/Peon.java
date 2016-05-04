@@ -4,11 +4,15 @@
  * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
-import java.io.Serializable;
 import utilidades.Movimiento;
 
 public class Peon extends Ficha{
 
+    /**
+     * Crea un nuevo peon
+     * 
+     * @param color color del peon
+     */
     public Peon(String color) {
         super(color, true);
     }
