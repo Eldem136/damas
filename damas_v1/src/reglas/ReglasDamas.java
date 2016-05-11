@@ -38,7 +38,7 @@ public class ReglasDamas implements Reglas, Serializable {
         */
         else if ( ficha.mover(movimiento) == false )
             return false;
-        else if ( finalizaMovimientoDentroDeTablero(filaFinal, columnaFinal, tablero) )
+        else if ( ! finalizaMovimientoDentroDeTablero(filaFinal, columnaFinal, tablero) )
             return false;
         else if ( ! tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
             return false;

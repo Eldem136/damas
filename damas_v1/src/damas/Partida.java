@@ -108,7 +108,7 @@ public class Partida implements Serializable {
             do {
                 movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
                 movimientoValido = reglas.movimientoValido(movimiento, tablero);
-                if(!movimientoValido){
+                if ( ! movimientoValido ) {
                     consola.imprimirError("No es un movimiento valido");
                 }
             } while ( ! movimientoValido );
