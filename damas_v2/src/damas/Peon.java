@@ -1,62 +1,47 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Peon.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
-import java.io.Serializable;
 import utilidades.Movimiento;
 
-/**
- *
- * @author Ezequiel Barbudo, Diego Malo
- */
 public class Peon extends Ficha{
 
+    /**
+     * Crea un nuevo peon
+     * 
+     * @param color color del peon
+     */
     public Peon(String color) {
-        super(color);
+        super(color, true);
     }
     
+    /**
+     * Comprueba si es un movimiento del tipo de ficha peon
+     * 
+     * @param movimiento movimiento a comprobar
+     * @return 
+     * true si el movimiento es valido
+     */
     @Override
-    public boolean mover(Movimiento mov){
-        int avanceFila = mov.getFilaFinal() - mov.getFilaInicial();
-        int avanceCol = mov.getColFinal() - mov.getColInicial();
-        if(this.getColor().equals(NEGRO)){
-            //mover hacia adelante las fichas negras (hacia abajo)
-            if(avanceFila==1 && avanceCol==1){
-                return true;
-            }
-            else if(avanceFila==1 && avanceCol==-1){
-                return true;
-            }
-            else if(avanceFila==2 && avanceCol==2){
-                return true;
-            }
-            else if(avanceFila==2 && avanceCol==-2){
-                return true;
-            }
-        }
-        else if(this.getColor().equals(BLANCO)){
-            //mover hacia adelante las fichas blancas (hacia arriba)
-            if(avanceFila==-1 && avanceCol==1){
-                return true;
-            }
-            else if(avanceFila==-1 && avanceCol==-1){
-                return true;
-            }
-            else if(avanceFila==-2 && avanceCol==2){
-                return true;
-            }
-            else if(avanceFila==-2 && avanceCol==-2){
-                return true;
+    public boolean mover(Movimiento movimiento){
+        int avanceFila = movimiento.getFilaFinal() - movimiento.getFilaInicial();
+        int avanceCol = movimiento.getColFinal() - movimiento.getColInicial();
+        
+        if ( Math.abs(avanceCol) == Math.abs(avanceFila) ) {
+            
+            if ( Math.abs(avanceFila) == 1 || Math.abs(avanceFila) == 2 ) {
+                
+                if ( this.getColor().equals(NEGRA) &&
+                        Math.signum(avanceFila) == 1 ) {
+                    return true;
+                } else if ( this.getColor().equals(BLANCA) &&
+                        Math.signum(avanceFila) == -1 )
+                    return true;
             }
         }
         return false;
-    }
-    
-    @Override
-    public boolean puedeTransformarse() {
-        return true;
     }
     
 }

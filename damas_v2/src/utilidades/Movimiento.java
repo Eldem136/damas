@@ -1,14 +1,10 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Movimiento.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package utilidades;
 
-/**
- *
- * @author diego
- */
 public class Movimiento {
     private int filaInicial;
     private int colInicial;

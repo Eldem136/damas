@@ -1,37 +1,41 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Tablero.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
 
 import java.io.Serializable;
 import utilidades.Movimiento;
 
-/**
- *
- * @author Ezequiel Barbudo, Diego Malo
- */
 public class Tablero extends java.util.Observable implements Serializable {
     private final Ficha[][] casillero;
     private static final int MAX_FILAS = 8;
     private static final int MAX_COL = 8;
     
-    private int filaMinima = 0;
-    private int columnaMinima = 0;
-    private int filaMaxima = MAX_FILAS - 1;
-    private int columnaMaxima = MAX_COL - 1;
+    private int filaMinima;
+    private int columnaMinima;
+    private int filaMaxima;
+    private int columnaMaxima;
     
-    private int numFichasJ1 = 12;
-    private int numFichasJ2 = 12;
+    private final Peon fVacia = new Peon(Ficha.VACIA);
     
-    private Peon fVacia = new Peon(Ficha.VACIA);
-    
+    /**
+     * crea un nuevo tablero con el numero de filas y columnas por defecto
+     */
     public Tablero(){
         this(Tablero.MAX_FILAS, Tablero.MAX_COL);
     }
     
+    /**
+     * crea un tablero con un numero de filas y columnas especificio
+     * 
+     * @param filas numero de filas
+     * @param columnas numero de columnas
+     */
     public Tablero(int filas, int columnas) {
+        this.columnaMinima = 0;
+        this.filaMinima = 0;
         
         casillero = new Ficha[filas][columnas];
         filaMaxima = filas - 1;
@@ -40,36 +44,36 @@ public class Tablero extends java.util.Observable implements Serializable {
     }
     
     /**
-     * Coloca las fichas en el tablero siguiendo el reglamento español de las
-     * damas: 12 fichas de cada color, blancas abajo, negras arriba, 
-     * colocadas todas alternadas con un hueco entre medias
+     * Coloca las fichas para un juego de damas.
+     * Coloca en las tres filas superiores las fichas del jugador 2 que seran de color negro
+     * Coloca en las tres filas inferiores las fichas del jugador 1 que seran de color blanco
      */
     public void colocarFichas(){
         int x; //filas
         int y; //columnas
         
-        for(x=0; x<MAX_FILAS; x++){
-            for(y=0; y<MAX_COL; y++){
-                if(x==3 || x==4){
+        for ( x = filaMinima; x <= filaMaxima; x++ ) {
+            for ( y = columnaMinima; y <= columnaMaxima; y++ ) {
+                if ( x == 3 || x == 4 ) {
                     casillero[x][y] = new Peon("·");
                 }
-                else if(x>=0 && x<3){
-                    if(x%2==0 && y%2!=0){
-                    casillero[x][y] = new Peon(Ficha.NEGRO);
+                else if ( x >= 0 && x < 3 ) {
+                    if ( x % 2 == 0 && y % 2 != 0 ) {
+                    casillero[x][y] = new Peon(Ficha.NEGRA);
                     }
-                    else if(x%2!=0 && y%2==0){
-                        casillero[x][y] = new Peon(Ficha.NEGRO);
+                    else if ( x % 2 != 0 && y % 2 == 0 ) {
+                        casillero[x][y] = new Peon(Ficha.NEGRA);
                     }
                     else{
                         casillero[x][y] = new Peon("·");
                     }
                 }
                 else{
-                    if(x%2==0 && y%2!=0){
-                    casillero[x][y] = new Peon(Ficha.BLANCO);
+                    if ( x % 2 == 0 && y % 2 != 0 ) {
+                    casillero[x][y] = new Peon(Ficha.BLANCA);
                     }
-                    else if(x%2!=0 && y%2==0){
-                        casillero[x][y] = new Peon(Ficha.BLANCO);
+                    else if ( x % 2 != 0 && y % 2 == 0 ) {
+                        casillero[x][y] = new Peon(Ficha.BLANCA);
                     }
                     else{
                         casillero[x][y] = new Peon("·");
@@ -81,20 +85,16 @@ public class Tablero extends java.util.Observable implements Serializable {
     
     /**
      * Elimina del tablero todas las fichas que se han marcado como muertas
-     * @return 
      */
-    public boolean limpiarFichasMuertas(){
-        if(casillero==null){
-            return false;
-        }
-        for(int x=0; x<MAX_FILAS; x++){
-            for(int y=0; y<MAX_COL; y++){
-                if(casillero[x][y].estaMuerta()){
-                    casillero[x][y] = fVacia;
-                }
-           }
-        }
-        return true;
+    public void limpiarFichasMuertas(){
+        if ( casillero != null )
+            for ( int x = 0; x < MAX_FILAS; x++ ) {
+                for ( int y = 0; y < MAX_COL; y++ ) {
+                    if ( casillero[x][y].estaMuerta() ) {
+                        casillero[x][y] = fVacia;
+                    }
+               }
+            }
     }
     
     @Override
@@ -122,28 +122,32 @@ public class Tablero extends java.util.Observable implements Serializable {
     }
     
     /**
+     * Obtiene la ficha situada en la fila y colunma indicadas
+     * 
      * @param fila la fila
-     * @param col la columna
-     * @return devuelve una ficha si y solo si las coordenadas especificadas
-     * están dentro de los limites del tablero. En caso contrario devuelve null
+     * @param columna la columna
+     * @return 
+     * la ficha si las fichas estan dentro de las coordenadas del tablero
+     * null si las coordenadas indicadas no corresponden a una posicion dentro del tablero
      */
-    public Ficha getFicha(int fila, int col){
-        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
-            return casillero[fila][col];
-        }
-        return null;
+    public Ficha getFicha(int fila, int columna){
+        if ( posicionDentroTablero(fila, columna) )
+            return casillero[fila][columna];
+        else
+            return null;
     }
     
     /**
      * Elimina una ficha del tablero, si existe
+     * 
      * @param fila la fila
-     * @param col la columna
+     * @param columna la columna
      * @return true si elimina exitosamente la ficha, false si la posición 
      * esta fuera de los limites del tablero
      */
-    public boolean quitarFicha(int fila, int col){
-        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
-            casillero[fila][col] = new Peon("·");
+    public boolean quitarFicha(int fila, int columna){
+        if ( posicionDentroTablero(fila, columna) ) {
+            casillero[fila][columna] = new Peon("·");
             return true;
         }
         return false;
@@ -151,45 +155,55 @@ public class Tablero extends java.util.Observable implements Serializable {
     
     /**
      * coloca en el tablero una ficha en la posicion correspondiente
+     * 
      * @param fila la fila
-     * @param col la columna
+     * @param columna la columna
      * @param ficha la ficha a colocar en el tablero
-     * @return true si coloca la ficha, false si la posición esta fuera de los
-     * limites del tablero
+     * @return 
+     * true si coloca la ficha
+     * false si la posición esta fuera de los limites del tablero
      */
-    public boolean ponerFicha(int fila, int col, Ficha ficha){
-        if(fila >=0 && fila <MAX_FILAS && col >=0 && col <MAX_COL){
-            casillero[fila][col] = ficha;
+    public boolean ponerFicha(int fila, int columna, Ficha ficha){
+        if ( posicionDentroTablero(fila, columna) ) {
+            casillero[fila][columna] = ficha;
             return true;
         }
         return false;
     }
     
-    public boolean cambiarADama(int fila, int col) {
+    /**
+     * cambia a dama la ficha de la fila y la columna indicadas
+     * 
+     * @param fila la fila
+     * @param columna la columna
+     */
+    public void cambiarADama(int fila, int columna) {
         
-        //comprueba que hay ficha
-        if(casillero[fila][col].estaVacia()) 
-            return false;
+        if ( casillero[fila][columna].estaVacia() ) {
+            //crea la nueva dama
+            String color = casillero[fila][columna].getColor();
+            casillero[fila][columna] = new Dama(color);
+        }
         
-        //crea la nueva dama
-        String color = casillero[fila][col].getColor();
-        casillero[fila][col] = new Dama(color);
-        
-        return true;
     }
     
-    public boolean moverFicha(Movimiento mov) {
+    /**
+     * mueve la ficha siguiendo el movimiento indicado
+     * 
+     * @param movimiento el movimiento que sigue la ficha
+     * @return 
+     * true si mueve la ficha sin problemas
+     * false si intentamos mover una ficha vacia o intentamos mover a una posicion ocupada
+     */
+    public boolean moverFicha(Movimiento movimiento) {
         
-        int fil1 = mov.getFilaInicial();
-        int col1 = mov.getColInicial();
-        int fil2 = mov.getFilaFinal();
-        int col2 = mov.getColFinal();
-        
-        int avanceFila = fil2 - fil1;
-        int avanceColumna = col2 - col1;
+        int fil1 = movimiento.getFilaInicial();
+        int col1 = movimiento.getColInicial();
+        int fil2 = movimiento.getFilaFinal();
+        int col2 = movimiento.getColFinal();
         
         //comprueba que hay ficha
-        if( casillero[fil1][col1].estaVacia() ) 
+        if ( casillero[fil1][col1].estaVacia() ) 
             return false;
         
         //comprobamos que la posicion final no esta ocupada ya
@@ -204,11 +218,12 @@ public class Tablero extends java.util.Observable implements Serializable {
 
     /**
      * Retorna si la posicion indicada esta vacia
+     * 
      * @param fila la fila de la posicion en el tablero
      * @param columna la columna de la posicion en el tablero
-     * @return falso si la posicion indicada contiene una ficha o 
-     *  esta fuera de los limites del tablero
-     *  verdadero en caso contrario
+     * @return 
+     * true si la posicion tiene una ficha
+     * false si la posicion esta fuera de los limites o tiene una ficha
      */
     public boolean estaLaCasillaVacia(int fila, int columna) {
         if ( ! posicionDentroTablero(fila, columna) )
@@ -219,12 +234,14 @@ public class Tablero extends java.util.Observable implements Serializable {
     
     /**
      * Retorna si la ficha es del mismo color
+     * 
      * @param fila la fila de la ficha en el tablero
      * @param columna la columna de la ficha en el tablero
      * @param color el color a comprobar
-     * @return falso si la ficha indicada en las coordenadas es de otro color, 
-     *  esta vacia o si las coordenadas indican una posicion fuera del tablero
-     *  verdadero en caso contrario
+     * @return
+     * true si la ficha indicada por las coordenadas es del color indicado
+     * false si la ficha indicada por las coordenadas es de otro color, esta vacia 
+     *  o se indican coordenadas fuera del tablero
      */
     public boolean fichaDelMismoColor(int fila, int columna, String color) {
         
@@ -237,6 +254,11 @@ public class Tablero extends java.util.Observable implements Serializable {
         
     }
     
+    /**
+     * Mata la ficha indicada por las coordenadas
+     * @param fila la fila
+     * @param columna la columna
+     */
     public void matarFicha (int fila, int columna) {
         
         if ( posicionDentroTablero(fila, columna) )
@@ -244,6 +266,15 @@ public class Tablero extends java.util.Observable implements Serializable {
         
     }
         
+    /**
+     * Comprueba que la fila y la columna se encuentran dentro de los limites del tablero
+     * 
+     * @param fila la fila
+     * @param columna la columna
+     * @return 
+     * true si las coordenadas pertenecen al tablero
+     * false si las coordenadas no pertenecen al tablero
+     */
     private boolean posicionDentroTablero(int fila, int columna) {
         return ( fila >= this.filaMinima &&
                 fila <= this.filaMaxima &&
@@ -279,6 +310,9 @@ public class Tablero extends java.util.Observable implements Serializable {
         return columnaMaxima;
     }
     
+    /**
+     * @return the casillero
+     */
     public Ficha[][] getCasillero(){
         return this.casillero;
     }
