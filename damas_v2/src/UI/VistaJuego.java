@@ -5,6 +5,8 @@
  */
 package UI;
 
+import damas.Ficha;
+import damas.Tablero;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -16,6 +18,8 @@ import java.util.Observable;
  */
 public class VistaJuego extends JFrame implements java.util.Observer {
     JLabel contador; JButton botonInc, botonDec, botonInit;
+    JPanel panelJuego;
+    int filas, columnas;
     TableroSwing tableroSwing;
     static final String DEC = "Dec", INC = "Inc", INICIO = "Inicio";
      
@@ -28,25 +32,47 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         getContentPane().setLayout(new BorderLayout());
         
         
-        JPanel panel1 = new JPanel();
-        panel1.setLayout(new FlowLayout());
-        getContentPane().add(panel1,BorderLayout.CENTER);
-        tableroSwing = new TableroSwing(10,10);
-        panel1.add(tableroSwing);
+        panelJuego = new JPanel();
+        panelJuego.setLayout(new FlowLayout());
+        getContentPane().add(panelJuego,BorderLayout.CENTER);
         
 
-        setBounds(0, 0, tableroSwing.getAnchura(),
-                tableroSwing.getAltura()); setVisible(true);  
+         
         setResizable(false);
     }
 
     public void update(Observable obs, Object obj) {
-      contador.setText("" + ((Integer)obj).intValue());
+      
     }
 
-    public void addControlador(ActionListener controlador){
-        botonDec.addActionListener(controlador);
-        botonInc.addActionListener(controlador);	
-        botonInit.addActionListener(controlador);		
+    public void addControlador(ActionListener controlador){	
+    }
+    
+    public void crearTableroSwing(int filas, int columnas){
+        this.filas = filas;
+        this.columnas = columnas;
+        tableroSwing = new TableroSwing(filas, columnas);
+        panelJuego.add(tableroSwing);
+        setBounds(0, 0, tableroSwing.getAnchura(),
+                tableroSwing.getAltura()); 
+        setVisible(true); 
+    }
+    
+    public void actualizarTableroSwing(Tablero tablero){
+        
+        for(int cuentaFilas = 0; cuentaFilas<filas; cuentaFilas++){
+            for(int cuentaColumnas = 0; cuentaColumnas<columnas; cuentaColumnas++){
+                if(tablero.estaLaCasillaVacia(cuentaFilas, cuentaColumnas)){
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                }
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.BLANCO)){
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "BLANCO");
+                }
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.NEGRO)){
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "NEGRO");
+                }
+                
+            }
+        }
     }
 }

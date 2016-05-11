@@ -30,18 +30,18 @@ public class damas_v2 {
         
         
         
-        /*
-        Carga interfaz swing
-        */
-        VistaJuego vista = new VistaJuego("damas");
-        
-        
+        Partida partida = null;
+        VistaJuego vista;
+        Tablero tablero;
         Reglas reglas = new ReglasDamas();
         Scanner scan = new Scanner(System.in);
+        
+        vista = new VistaJuego("damas");
         
         System.out.println("Damas_V2 \n-------------------------------");
         System.out.println("1 - Nueva partida.\n2 - Cargar Partida");
         System.out.println("-------------------------------");
+       
         int opcion = scan.nextInt();
         
         File directorio = new File("partidasGuardadas");
@@ -50,10 +50,27 @@ public class damas_v2 {
         } 
         
         if(opcion ==1){
-            new Partida("jugador1", "jugador2", reglas).jugar();
+            partida = new Partida("jugador1", "jugador2", reglas);
+            tablero = partida.tablero;
+            partida.vista(vista);
+            
+            
         }
         else if(opcion == 2){
-                    Partida.cargar().jugar();
-                }
+            partida = Partida.cargar();
+            tablero = partida.tablero;
+            partida.vista(vista);
+//            Tablero t2 = new Tablero();
+//            t2.colocarFichas();
+//            
+//        vista.crearTableroSwing(t2.getFilaMaxima()+1, t2.getColumnaMaxima()+1);
+//        vista.actualizarTableroSwing(t2);
         }
+        
+        
+        partida.jugar();
+        }
+    
+        
+        
 }

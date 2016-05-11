@@ -278,6 +278,10 @@ public class Tablero extends java.util.Observable implements Serializable {
     public int getColumnaMaxima() {
         return columnaMaxima;
     }
+    
+    public Ficha[][] getCasillero(){
+        return this.casillero;
+    }
 
     
     

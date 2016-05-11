@@ -4,6 +4,7 @@
  * and open the template in the editor.
  */
 package damas;
+import UI.VistaJuego;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     
     private transient Consola consola;
     
+    private VistaJuego vista;
+    
     public Partida(String n1, String n2, Reglas reglas){
         this.tablero = new Tablero();
         this.jugador1 = new Jugador(n1, Ficha.BLANCO);
@@ -46,6 +49,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     
     public void iniciarConsola() {
         this.consola = new Consola();
+    }
+    
+    public void iniciarTableroSwing(){
+        vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
     }
     
     public static boolean guardar(Partida partida) throws IOException{        
@@ -68,11 +75,13 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         Movimiento movimiento;
         boolean movimientoValido;
         iniciarConsola();
+        iniciarTableroSwing();
+        
         do{
             
-                
-                this.guardar(this);
-                consola.imprimirLinea("PARTIDA GUARDADA");
+            vista.actualizarTableroSwing(tablero);
+            this.guardar(this);
+            consola.imprimirLinea("PARTIDA GUARDADA");
             
             turno++;
             System.out.println(tablero.toString());
@@ -175,5 +184,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     public void actionPerformed(ActionEvent e) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
+    
+    public void vista(VistaJuego v){ this.vista = v; }
 
 }
