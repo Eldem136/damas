@@ -62,6 +62,10 @@ public abstract class Ficha implements Serializable{
         this.muerta = true;
     }
     
+    public void revivir(){
+        this.muerta = false;
+    }
+    
     /**
      * indica si la ficha no contiene ningun color y es, por tanto, un separador
      * 

@@ -22,9 +22,9 @@ public class AdaptadorRatonFichas extends MouseAdapter {
     @Override
     public void mousePressed(MouseEvent e) { 
         casillaOrigen = (CasillaSwing) e.getComponent();
-        System.err.println("Fila: "+casillaOrigen.getFila()+" Columna:"+casillaOrigen.getColumna());
+        
     }
 
+    
 
-     
 }

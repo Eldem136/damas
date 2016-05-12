@@ -129,7 +129,8 @@ public class ReglasDamas implements Reglas, Serializable{
     @Override
     public int[] comeFicha(Movimiento movimiento, Tablero tablero) {
         
-        int[] fichaComida = Reglas.COORDENADAS_NO_COMER;
+        //int[] fichaComida = Reglas.COORDENADAS_NO_COMER;
+        int[] fichaComida = {-1,-1};
         
         int filaInicial = movimiento.getFilaInicial();
         int columnaInicial = movimiento.getColInicial();

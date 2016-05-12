@@ -7,6 +7,7 @@ package UI;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
@@ -15,12 +16,14 @@ import javax.swing.border.BevelBorder;
  *
  * @author Zeko
  */
-public class CasillaSwing extends JLabel {
+public class CasillaSwing extends JButton {
     private int fila, columna; 
+    private String actionCommand;
     
     private CasillaSwing(int fila, int columna, Icon icon) {
         this.fila = fila;
         this.columna = columna;
+        this.actionCommand = "casilla";
         setIcon(icon);
 
         setHorizontalAlignment(SwingConstants.CENTER);

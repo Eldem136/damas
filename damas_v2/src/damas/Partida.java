@@ -5,6 +5,7 @@
  */
 package damas;
 
+import UI.CasillaSwing;
 import UI.VistaJuego;
 import java.awt.event.ActionEvent;
 import java.io.File;
@@ -15,6 +16,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import reglas.Reglas;
 import reglas.ReglasDamas;
 import utilidades.Consola;
@@ -36,6 +39,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     private transient Consola consola;
     
     private VistaJuego vista;
+    
+    int filaInicial, columnaInicial;
+    private Movimiento movimiento = null;
+    private boolean movimientoListo = false;
     
     /**
      * Crea una nueva partida con un nuevo tablero, dos jugadores nuevos 
@@ -66,6 +73,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     
     public void iniciarTableroSwing(){
         vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
+        
     }
     
     /**
@@ -107,31 +115,53 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @throws IOException 
      */
     public void jugar() throws IOException{
-        Movimiento movimiento;
-        boolean movimientoValido;
+        boolean movimientoValido, turnoValido;
         iniciarConsola();
+        iniciarTableroSwing();
+        vista.addControlador(this);
         do{
-            this.guardar(this);
+            vista.actualizarTableroSwing(tablero);
             consola.imprimirLinea("PARTIDA GUARDADA");
             
             turno++;
             consola.imprimirLinea(tablero.toString());
-            
+            guardar(this);
             consola.imprimir("TURNO DEL JUGADOR: ");
             consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             do {
-                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
-                movimientoValido = reglas.movimientoValido(movimiento, tablero);
-                if ( ! movimientoValido ) {
-                    consola.imprimirError("No es un movimiento valido");
+//                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
+//                movimientoValido = reglas.movimientoValido(movimiento, tablero);
+//                if ( ! movimientoValido ) {
+//                    consola.imprimirError("No es un movimiento valido");
+//                }
+                while(!movimientoListo){
+                    try {
+                        Thread.sleep(100);
+                        //System.err.println("movimiento no listo");
+                    } catch (InterruptedException ex) {
+                        Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
+                    }
                 }
-            } while ( ! movimientoValido );
-            
-            tablero.moverFicha(movimiento);
-            comerFicha(movimiento);          
-            hacerDama(movimiento);            
+                turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
+                movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
+                if(!turnoValido){
+                    this.movimiento = null;
+                    this.movimientoListo = false;
+                }
+                if(!movimientoValido){
+                    this.movimiento = null;
+                    this.movimientoListo = false;
+                }
+                
+                
+            } while ( ! movimientoValido || ! turnoValido);
+            movimientoListo = false;
+            tablero.moverFicha(this.movimiento);
+            comerFicha(this.movimiento);          
+            hacerDama(this.movimiento);            
             tablero.limpiarFichasMuertas();            
-            fin = finalizaLaPartida();            
+            fin = finalizaLaPartida();   
+            this.movimiento = null;
         } while ( ! fin );
     }
     
@@ -141,43 +171,12 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @param color color que debe tener la ficha que moveremos
      * @return el movimiento, que debe pertenecer al jugador actual
      */
-    private Movimiento leerMovimiento(String color) {
-        int[] coordenadasMovimiento;
-        coordenadasMovimiento = new int[ Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO * 2 ];
-        int posicionEnVectorCoordenadas = 0;
-        
-        for ( int i = 0; i < Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO; i++ ) {
-            int filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
-            while ( filaAuxiliar < tablero.getFilaMinima() || 
-                    filaAuxiliar > tablero.getFilaMaxima() ) {
-                
-                consola.imprimirLinea("Error, la fila debe estar comprendida entre " 
-                        + tablero.getFilaMinima() + " y " 
-                        + tablero.getFilaMaxima() + "\n");
-                filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
-            }
-            coordenadasMovimiento[posicionEnVectorCoordenadas++] = filaAuxiliar;
-            
-            int columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
-            while ( columnaAuxiliar < tablero.getColumnaMinima()|| 
-                    columnaAuxiliar > tablero.getColumnaMaxima()) {
-                
-                consola.imprimirLinea("Error, la columna debe estar comprendida entre " 
-                        + tablero.getColumnaMinima()+ " y " 
-                        + tablero.getColumnaMaxima()+ "\n");
-                columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
-            }
-            coordenadasMovimiento[posicionEnVectorCoordenadas++] = columnaAuxiliar;
-        }
-        if ( ! tablero.fichaDelMismoColor(coordenadasMovimiento[0], coordenadasMovimiento[1], color) ) {
+    private boolean leerTurnoMovimiento(Movimiento movimiento, String color) {        
+        if ( ! tablero.fichaDelMismoColor(movimiento.getFilaInicial(), movimiento.getColInicial(), color) ) {
             consola.imprimirError("Esa ficha no es de tu color");
-            return leerMovimiento(color);
+            return false;
         }
-        return new Movimiento(
-            coordenadasMovimiento[0], // fila inicial
-            coordenadasMovimiento[1], // columna inicial
-            coordenadasMovimiento[2], // fila final
-            coordenadasMovimiento[3]);// columna final
+        return true;
     }
     
     /**
@@ -193,7 +192,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         
         System.err.println(coordenadasFichaComida[0]+","+coordenadasFichaComida[1]);
         tablero.matarFicha(coordenadasFichaComida[0], coordenadasFichaComida[1]);
-        
+        //System.err.println("coord ficha comida:"+coordenadasFichaComida[0]+","+coordenadasFichaComida[1]);
     }
     
     /**
@@ -210,8 +209,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         Ficha ficha = tablero.getFicha(fila, columna);
         
         
-        if ( reglas.seTransforma(ficha, fila, tablero) )
+        if ( reglas.seTransforma(ficha, fila, tablero) ){
             tablero.cambiarADama(fila, columna);
+            System.err.println("hacemos dama");
+        }
         
     }
     
@@ -237,9 +238,30 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        System.out.println(e.getActionCommand());
+        CasillaSwing c = (CasillaSwing) e.getSource();
+        System.out.println("fila:"+c.getFila()+" columna:"+c.getColumna());
+        if(e.getActionCommand().equals("BLANCO") || 
+                e.getActionCommand().equals("NEGRO") ||
+                e.getActionCommand().equals("")){
+            if(movimiento == null){
+                System.err.println("cojo primera");
+                filaInicial = c.getFila();
+                columnaInicial = c.getColumna();
+                movimiento = new Movimiento(filaInicial, columnaInicial, 0, 0);
+            }
+            else{
+                System.err.println("cojo segunda");
+                movimiento = new Movimiento(filaInicial, columnaInicial, c.getFila(), c.getColumna());
+                movimientoListo = true;
+            }
+                
+            
+        }
     }
     
-    public void vista(VistaJuego v){ this.vista = v; }
+    public void vista(VistaJuego v){ 
+        this.vista = v; 
+    }
 
 }

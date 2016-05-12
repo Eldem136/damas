@@ -22,6 +22,8 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     int filas, columnas;
     TableroSwing tableroSwing;
     static final String DEC = "Dec", INC = "Inc", INICIO = "Inicio";
+    Icon iconoFichaBlanca = new ImageIcon("recursos/white_checker.png");
+    Icon iconoFichaNegra = new ImageIcon("recursos/black_checker.png");
      
     public VistaJuego(String titulo) {
         super(titulo);
@@ -46,6 +48,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     }
 
     public void addControlador(ActionListener controlador){	
+        tableroSwing.addControlador(controlador);
     }
     
     public void crearTableroSwing(int filas, int columnas){
@@ -64,12 +67,17 @@ public class VistaJuego extends JFrame implements java.util.Observer {
             for(int cuentaColumnas = 0; cuentaColumnas<columnas; cuentaColumnas++){
                 if(tablero.estaLaCasillaVacia(cuentaFilas, cuentaColumnas)){
                     tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, null);
                 }
-                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.BLANCO)){
-                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "BLANCO");
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.BLANCA)){
+                    //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "BLANCO");
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaBlanca);
                 }
-                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.NEGRO)){
-                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "NEGRO");
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.NEGRA)){
+                    //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "NEGRO");
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaNegra);
                 }
                 
             }

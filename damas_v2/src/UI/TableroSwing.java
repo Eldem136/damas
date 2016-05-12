@@ -9,6 +9,7 @@ import com.sun.prism.paint.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
@@ -26,13 +27,11 @@ import utilidades.Movimiento;
  * @author Zeko
  */
 public class TableroSwing extends JPanel {
-  private static final int ALTURA_FILA = 60;
-  private static final int ANCHURA_COLUMNA = 60;
+  private static final int ALTURA_FILA = 70;
+  private static final int ANCHURA_COLUMNA = 70;
   private CasillaSwing casillas[][];
   private int filas, columnas;
 
-  public static final boolean RECIBIR_EVENTOS_RATON = true;
-  public static final boolean NO_RECIBIR_EVENTOS_RATON = false;
 
   /**
    * PanelTablero
@@ -102,5 +101,13 @@ public class TableroSwing extends JPanel {
   public void textoEnCasilla(int fila, int columna, String text){
       
       casillas[fila][columna].setText(text);
+      
+  }
+  
+  public void addControlador(ActionListener controlador){
+        for(int fil = 0; fil < filas; fil++) 
+            for(int col = 0; col < columnas; col++) {
+                casillas[fil][col].addActionListener(controlador);
+          } 
   }
 }
