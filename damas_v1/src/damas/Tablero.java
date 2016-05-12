@@ -18,7 +18,7 @@ public class Tablero implements Serializable {
     private int filaMaxima;
     private int columnaMaxima;
     
-    private final Peon fVacia = new Peon(Ficha.VACIA);
+    private Peon fVacia = new Peon(Ficha.VACIA);
     
     /**
      * crea un nuevo tablero con el numero de filas y columnas por defecto
@@ -87,14 +87,13 @@ public class Tablero implements Serializable {
      * Elimina del tablero todas las fichas que se han marcado como muertas
      */
     public void limpiarFichasMuertas(){
-        if ( casillero != null )
-            for ( int x = 0; x < MAX_FILAS; x++ ) {
-                for ( int y = 0; y < MAX_COL; y++ ) {
-                    if ( casillero[x][y].estaMuerta() ) {
-                        casillero[x][y] = fVacia;
-                    }
-               }
+        
+        for ( int i = filaMinima; i <= filaMaxima; i++ ) { 
+            for ( int j = columnaMinima; j <= columnaMaxima; j++ ) {
+                if ( casillero[i][j].estaMuerta() )
+                    casillero[i][j] = fVacia;
             }
+        }
     }
     
     @Override
@@ -309,7 +308,7 @@ public class Tablero implements Serializable {
     public int getColumnaMaxima() {
         return columnaMaxima;
     }
-
+    
     
     
 }
