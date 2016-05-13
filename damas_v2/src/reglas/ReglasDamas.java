@@ -191,15 +191,42 @@ public class ReglasDamas implements Reglas, Serializable{
     }
 
     /**
-     * comprueba que en el caso de que se salte una ficha lo haga por encima 
-     * de una sola ficha y del color contrario
-     * 
+     * Comprueba que la ficha se mueve correctamente comprobando si es un peon 
+     * o una dama y ejecutanto el metodo correcto para comprobarlo 
+     * segun el tipo de ficha
      * @param movimiento el movimiento de la ficha
      * @return 
      * true si salta una unica ficha y del color contrario o ninguna
-     * false si salta alguna ficha del mismo color o mas de una ficha de color contrario
+     * false si salta alguna ficha del mismo color o mas de una ficha de color 
+     *  contrario
      */
     private boolean saltoDeFichaCorrecto(Movimiento movimiento, Tablero tablero) {
+        
+        int filaInicial = movimiento.getFilaInicial();
+        int columnaInicial = movimiento.getColInicial();
+        
+        Ficha fichaComedora = tablero.getFicha(filaInicial, columnaInicial);
+        
+        String colorDeFicha = fichaComedora.getColor();
+        
+        if ( fichaComedora.isTransformable() )
+            return saltoDePeonCorrecto(movimiento, tablero, colorDeFicha);
+        else
+            return saltoDeDamaCorrecto(movimiento, tablero, colorDeFicha);
+    }
+    
+    /**
+     * Comprueba que el peon salta una ficha solo si es un enemigo 
+     *  y que en caso contrario no se mueve mas que una posicion
+     * @param movimiento el movimiento
+     * @param tablero el tablero
+     * @param colorFichaComedora el color del peon
+     * @return 
+     *  true si el movimiento del peon es correcto
+     *  false si el movimiento no es correcto
+     */
+    private boolean saltoDePeonCorrecto(Movimiento movimiento, Tablero tablero, 
+            String colorFichaComedora) {
         
         int filaInicial = movimiento.getFilaInicial();
         int columnaInicial = movimiento.getColInicial();
@@ -209,13 +236,45 @@ public class ReglasDamas implements Reglas, Serializable{
         int avanceFila = filaFinal - filaInicial;
         int avanceColumna = columnaFinal - columnaInicial;
         
+        if ( Math.abs(avanceFila) == 1 )
+            return true;
+        
+        else if ( Math.abs(avanceFila) == 2 ) {
+            
+            int filaComida = filaInicial + ( avanceFila / 2 );
+            int columnaComida = columnaInicial + ( avanceColumna / 2 );
+            
+            if ( tablero.estaLaCasillaVacia(filaComida, columnaComida) )
+                return false;
+            else if ( tablero.fichaDelMismoColor(filaComida, columnaComida, 
+                    colorFichaComedora) )
+                return false;
+            else 
+                return true;
+        }
+        return false;
+    }
+    
+    /**
+     * Comprueba que la dama solo salta un enemigo y que no salta ningun aliado
+     * @param movimiento el movimiento
+     * @param tablero el tablero
+     * @param colorFichaComedora el color de la dama
+     * @return 
+     * true si es un movimiento correcto
+     * false si no es un movimiento correcto
+     */
+    private boolean saltoDeDamaCorrecto(Movimiento movimiento, Tablero tablero, 
+            String colorFichaComedora) {
+        
+        int filaInicial = movimiento.getFilaInicial();
+        int columnaInicial = movimiento.getColInicial();
+        int avanceFila = movimiento.getFilaFinal() - filaInicial;
+        int avanceColumna = movimiento.getColFinal() - columnaInicial;
+        
         boolean enemigoEncontrado = false;
-        boolean movimientoCorrecto = true;
         
-        String colorDeFicha = 
-                tablero.getFicha(filaInicial, columnaInicial).getColor();
-        
-        for ( int i = 1; i < Math.abs(avanceFila) && movimientoCorrecto ; i++ ) {
+        for ( int i = 1; i < Math.abs(avanceFila) ; i++ ) {
                     
             int filaInvestigada = filaInicial + 
                     ( i * (int) Math.signum(avanceFila) );
@@ -224,19 +283,18 @@ public class ReglasDamas implements Reglas, Serializable{
 
             if ( ! tablero.estaLaCasillaVacia( filaInvestigada, 
                     columnaInvestigada ) ) {
-                if ( ! tablero.fichaDelMismoColor(
-                        filaInvestigada, columnaInvestigada, colorDeFicha)) {
+                if ( tablero.fichaDelMismoColor(
+                        filaInvestigada, columnaInvestigada, colorFichaComedora)) {
+                    return false;
+                }
+                else {
                     if ( ! enemigoEncontrado ) {
                         enemigoEncontrado = true;
                     } else 
-                        movimientoCorrecto = false;
-                } else if ( tablero.fichaDelMismoColor(
-                        filaInvestigada, columnaInvestigada, colorDeFicha)) {
-                    movimientoCorrecto = false;
+                        return false;
                 }
             }
         }
-        return movimientoCorrecto;
+        return true;
     }
-    
 }
