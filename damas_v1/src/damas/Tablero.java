@@ -178,8 +178,7 @@ public class Tablero implements Serializable {
      */
     public void cambiarADama(int fila, int columna) {
         
-        if ( casillero[fila][columna].estaVacia() ) {
-            //crea la nueva dama
+        if ( ! casillero[fila][columna].estaVacia() ) {
             String color = casillero[fila][columna].getColor();
             casillero[fila][columna] = new Dama(color);
         }
