@@ -191,13 +191,14 @@ public class ReglasDamas implements Reglas, Serializable {
     }
 
     /**
-     * comprueba que en el caso de que se salte una ficha lo haga por encima 
-     * de una sola ficha y del color contrario
-     * 
+     * Comprueba que la ficha se mueve correctamente comprobando si es un peon 
+     * o una dama y ejecutanto el metodo correcto para comprobarlo 
+     * segun el tipo de ficha
      * @param movimiento el movimiento de la ficha
      * @return 
      * true si salta una unica ficha y del color contrario o ninguna
-     * false si salta alguna ficha del mismo color o mas de una ficha de color contrario
+     * false si salta alguna ficha del mismo color o mas de una ficha de color 
+     *  contrario
      */
     private boolean saltoDeFichaCorrecto(Movimiento movimiento, Tablero tablero) {
         
@@ -214,6 +215,16 @@ public class ReglasDamas implements Reglas, Serializable {
             return saltoDeDamaCorrecto(movimiento, tablero, colorDeFicha);
     }
     
+    /**
+     * Comprueba que el peon salta una ficha solo si es un enemigo 
+     *  y que en caso contrario no se mueve mas que una posicion
+     * @param movimiento el movimiento
+     * @param tablero el tablero
+     * @param colorFichaComedora el color del peon
+     * @return 
+     *  true si el movimiento del peon es correcto
+     *  false si el movimiento no es correcto
+     */
     private boolean saltoDePeonCorrecto(Movimiento movimiento, Tablero tablero, 
             String colorFichaComedora) {
         
@@ -244,6 +255,15 @@ public class ReglasDamas implements Reglas, Serializable {
         return false;
     }
     
+    /**
+     * Comprueba que la dama solo salta un enemigo y que no salta ningun aliado
+     * @param movimiento el movimiento
+     * @param tablero el tablero
+     * @param colorFichaComedora el color de la dama
+     * @return 
+     * true si es un movimiento correcto
+     * false si no es un movimiento correcto
+     */
     private boolean saltoDeDamaCorrecto(Movimiento movimiento, Tablero tablero, 
             String colorFichaComedora) {
         
