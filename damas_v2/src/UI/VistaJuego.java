@@ -9,15 +9,20 @@ import damas.Ficha;
 import damas.Tablero;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
 import javax.swing.*;
 import java.util.Observable;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 /**
  *
  * @author Zeko
  */
 public class VistaJuego extends JFrame implements java.util.Observer {
-    JLabel contador; JButton botonInc, botonDec, botonInit;
+    JLabel contador; 
+    JLabel texto, logo;
     JPanel panelJuego;
     int filas, columnas;
     TableroSwing tableroSwing;
@@ -35,14 +40,15 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         });  
         
         
-        getContentPane().setLayout(new BorderLayout());    
-        
-        
+        getContentPane().setLayout(new BorderLayout());            
+        texto = new JLabel("");
+        getContentPane().add(texto, BorderLayout.NORTH);
         panelJuego = new JPanel();
         panelJuego.setLayout(new FlowLayout());
         getContentPane().add(panelJuego,BorderLayout.CENTER);
         
-
+        
+        
         barraMenu = new JMenuBar();
         setJMenuBar(barraMenu);
         menu = new JMenu("Opciones");
@@ -53,6 +59,13 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         menu.add(nuevo);
         menu.add(cargar);
         menu.add(guardar);
+        
+//        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
+//        logo = new JLabel();
+//        logo.setIcon(icono);
+//        logo.setHorizontalAlignment(JLabel.CENTER);
+//        logo.setVerticalAlignment(JLabel.CENTER);
+//        getContentPane().add(logo);
          
         //crearTableroSwing(10, 10);
         
@@ -60,7 +73,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         //setBounds(250,200,250,150); 
 //        setVisible(true); 
 //        setResizable(false);
-        setBounds(250,200,250,150); setVisible(true);  
+        setBounds(250,200,400,300); setVisible(true);  
         setResizable(false);
     }
 
@@ -70,7 +83,6 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         nuevo.addActionListener(controlador);
         guardar.addActionListener(controlador);
         cargar.addActionListener(controlador);
-        //tableroSwing.addControlador(controlador);
         
     }
     public void addControladorDePartida(ActionListener controlador){
@@ -83,11 +95,15 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         tableroSwing = new TableroSwing(filas, columnas);
         panelJuego.add(tableroSwing);        
         setBounds(0, 0, tableroSwing.getAnchura(),
-                tableroSwing.getAltura());
+                tableroSwing.getAltura() + 10);
         
         
     }
-    
+    public void limpiarTableroSwing(){
+        if(tableroSwing != null){
+            getContentPane().remove(tableroSwing);
+        }
+    }
     public void actualizarTableroSwing(Tablero tablero){
         
         for(int cuentaFilas = 0; cuentaFilas<filas; cuentaFilas++){
@@ -130,10 +146,62 @@ public class VistaJuego extends JFrame implements java.util.Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        
     }
     
     public TableroSwing getTableroSwing(){
         return tableroSwing;
+    }
+    
+    public String[] pedirJugadores(){
+        String[] jugadores = new String[2];
+        String jugador1 = "";
+        String jugador2 = "";
+        String jugador = "";
+        while(jugador1 == ""){
+            jugador = (String)JOptionPane.showInputDialog(null, "Introduce el nombre del jugador 1.");
+            if((jugador != null) && (jugador.length() > 0)){
+                    jugador1 = jugador;
+                    jugadores[0] = jugador1;
+                }
+        }
+        while(jugador2 == ""){
+            jugador = (String)JOptionPane.showInputDialog(null, "Introduce el nombre del jugador 1.");
+            if((jugador != null) && (jugador.length() > 0)){
+                    jugador2 = jugador;
+                    jugadores[1] = jugador2;
+                }
+        }
+        
+        
+        return jugadores;
+    }
+    
+    public void cambiarTexto(String t){
+        texto.setText(t);
+    }
+    
+    public String guardarPartida(){
+        JFileChooser dialogoGuardar = new JFileChooser();
+        if(dialogoGuardar.showSaveDialog(null) == dialogoGuardar.APPROVE_OPTION){
+            return dialogoGuardar.getSelectedFile().getAbsolutePath();
+        }
+        return null;
+    }
+    
+    public File cargarPartida(){
+        File f = null;
+        JFileChooser dialogoCargar = new JFileChooser();
+        FileNameExtensionFilter filtro = new FileNameExtensionFilter("archivos .dat", "dat");
+        dialogoCargar.setFileFilter(filtro);
+        if(dialogoCargar.showOpenDialog(null) == dialogoCargar.APPROVE_OPTION){
+            f = (File) dialogoCargar.getSelectedFile();
+            return f;
+        }
+        return null;
+    }
+    
+    public void mostrarMovimientoValido(int fila, int columna){
+        tableroSwing.getCasillas()[fila][columna].setBackground(java.awt.Color.green);
     }
 }

@@ -7,6 +7,7 @@ package damas;
 
 import UI.VistaJuego;
 import java.awt.event.ActionEvent;
+import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.Level;
@@ -32,28 +33,41 @@ public class Controlador implements java.awt.event.ActionListener{
     public void actionPerformed(ActionEvent e) {
     
         if(e.getActionCommand().equals("Nueva partida")){
-            
-            partida = new Partida("Jugador1", "Jugador2", reglas);
+            String[] jugadores = vista.pedirJugadores();
+            vista.limpiarTableroSwing();
+            vista.revalidate();
+            vista.repaint();
+            partida = new Partida(jugadores[0], jugadores[1], reglas);
 
             tablero = partida.tablero;
             tablero.addObserver(vista);
             partida.vista(vista);
-
-//            partida.iniciarTableroSwing();
-//            vista.addControladorDePartida(partida);
-            
             partida.jugar();
-            //vista.actualizarTableroSwing(tablero);
-            //SwingUtilities.invokeLater(partida);
-//            SwingUtilities.invokeLater(partida);
             
-            
-        }
-        else if(e.getActionCommand().equals("Cargar partida")){
             
         }
         else if(e.getActionCommand().equals("Guardar partida")){
-            
+            try {
+                if(partida!= null)
+                    partida.guardar(partida);
+            } catch (IOException ex) {
+                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        else if(e.getActionCommand().equals("Cargar partida")){
+            try {
+                File file = vista.cargarPartida();
+                if((partida = Partida.cargar(file)) != null){
+                    tablero = partida.getTablero();
+                    tablero.addObserver(vista);
+                    partida.vista(vista);
+                    partida.jugar();
+                }
+            } catch (IOException ex) {
+                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+            } catch (ClassNotFoundException ex) {
+                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
     }
     
