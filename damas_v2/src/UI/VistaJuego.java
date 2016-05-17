@@ -60,12 +60,12 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         menu.add(cargar);
         menu.add(guardar);
         
-//        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
-//        logo = new JLabel();
-//        logo.setIcon(icono);
-//        logo.setHorizontalAlignment(JLabel.CENTER);
-//        logo.setVerticalAlignment(JLabel.CENTER);
-//        getContentPane().add(logo);
+        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
+        logo = new JLabel();
+        logo.setIcon(icono);
+        logo.setHorizontalAlignment(JLabel.CENTER);
+        logo.setVerticalAlignment(JLabel.CENTER);
+        getContentPane().add(logo);
          
         //crearTableroSwing(10, 10);
         
@@ -89,7 +89,18 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         tableroSwing.addControlador(controlador);
     }
     
-    public void crearTableroSwing(int filas, int columnas){
+    public void setUIJuego(){
+        getContentPane().removeAll();
+        getContentPane().setLayout(new BorderLayout());            
+        texto = new JLabel("");
+        getContentPane().add(texto, BorderLayout.NORTH);
+        panelJuego = new JPanel();
+        panelJuego.setLayout(new FlowLayout());
+        getContentPane().add(panelJuego,BorderLayout.CENTER);
+    }
+    
+    public void crearTableroSwing(int filas, int columnas){      
+        
         this.filas = filas;
         this.columnas = columnas;
         tableroSwing = new TableroSwing(filas, columnas);

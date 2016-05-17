@@ -147,6 +147,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         movimiento = null;
         primeraParteMovimiento = false;
         iniciarConsola();
+        vista.setUIJuego();
         iniciarTableroSwing();
         vista.addControladorDePartida(this);
         
