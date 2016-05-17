@@ -17,6 +17,10 @@ import java.awt.event.MouseMotionListener;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import utilidades.AdaptadorRatonFichas;
@@ -31,6 +35,7 @@ public class TableroSwing extends JPanel {
   private static final int ANCHURA_COLUMNA = 70;
   private CasillaSwing casillas[][];
   private int filas, columnas;
+  
 
 
   /**
@@ -39,6 +44,9 @@ public class TableroSwing extends JPanel {
   public TableroSwing(int filas, int columnas) {   
       
     setLayout(new GridLayout(filas, columnas));
+    
+    
+    
     casillas = new CasillaSwing[filas][columnas];
     this.filas = filas;
     this.columnas = columnas;
@@ -110,4 +118,11 @@ public class TableroSwing extends JPanel {
                 casillas[fil][col].addActionListener(controlador);
           } 
   }
+ 
+  
+  public CasillaSwing[][] getCasillas(){
+      return casillas;
+  }
+  
+  
 }

@@ -24,6 +24,9 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     static final String DEC = "Dec", INC = "Inc", INICIO = "Inicio";
     Icon iconoFichaBlanca = new ImageIcon("recursos/white_checker.png");
     Icon iconoFichaNegra = new ImageIcon("recursos/black_checker.png");
+    JMenu menu;
+    JMenuItem nuevo, guardar, cargar;
+    JMenuBar barraMenu;
      
     public VistaJuego(String titulo) {
         super(titulo);
@@ -31,7 +34,8 @@ public class VistaJuego extends JFrame implements java.util.Observer {
           public void windowClosing(WindowEvent e) { System.exit(0); }
         });  
         
-        getContentPane().setLayout(new BorderLayout());
+        
+        getContentPane().setLayout(new BorderLayout());    
         
         
         panelJuego = new JPanel();
@@ -39,15 +43,37 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         getContentPane().add(panelJuego,BorderLayout.CENTER);
         
 
+        barraMenu = new JMenuBar();
+        setJMenuBar(barraMenu);
+        menu = new JMenu("Opciones");
+        barraMenu.add(menu);
+        nuevo = new JMenuItem("Nueva partida");
+        cargar = new JMenuItem("Cargar partida");
+        guardar = new JMenuItem("Guardar partida");
+        menu.add(nuevo);
+        menu.add(cargar);
+        menu.add(guardar);
          
+        //crearTableroSwing(10, 10);
+        
+        //tableroSwing.setVisible(false);
+        //setBounds(250,200,250,150); 
+//        setVisible(true); 
+//        setResizable(false);
+        setBounds(250,200,250,150); setVisible(true);  
         setResizable(false);
     }
 
-    public void update(Observable obs, Object obj) {
-      
-    }
+   
 
-    public void addControlador(ActionListener controlador){	
+    public void addControlador(ActionListener controlador){
+        nuevo.addActionListener(controlador);
+        guardar.addActionListener(controlador);
+        cargar.addActionListener(controlador);
+        //tableroSwing.addControlador(controlador);
+        
+    }
+    public void addControladorDePartida(ActionListener controlador){
         tableroSwing.addControlador(controlador);
     }
     
@@ -55,10 +81,11 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         this.filas = filas;
         this.columnas = columnas;
         tableroSwing = new TableroSwing(filas, columnas);
-        panelJuego.add(tableroSwing);
+        panelJuego.add(tableroSwing);        
         setBounds(0, 0, tableroSwing.getAnchura(),
-                tableroSwing.getAltura()); 
-        setVisible(true); 
+                tableroSwing.getAltura());
+        
+        
     }
     
     public void actualizarTableroSwing(Tablero tablero){
@@ -82,5 +109,31 @@ public class VistaJuego extends JFrame implements java.util.Observer {
                 
             }
         }
+    }
+    
+    public void resaltarCasilla(int fila, int columna){
+        tableroSwing.getCasillas()[fila][columna].setBackground(java.awt.Color.red);
+    }
+    
+    public void repintarTablero(){
+        for(int i=0; i<filas; i++){
+          for(int j=0; j<columnas; j++){
+                if( (i+j)%2 == 1){
+                    tableroSwing.getCasillas()[i][j].setBackground(java.awt.Color.lightGray);
+                }
+                else if ((i+j)%2 == 0){
+                    tableroSwing.getCasillas()[i][j].setBackground(java.awt.Color.white);
+                }
+          }
+      }
+    }
+
+    @Override
+    public void update(Observable o, Object arg) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public TableroSwing getTableroSwing(){
+        return tableroSwing;
     }
 }

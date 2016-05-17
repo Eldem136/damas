@@ -41,8 +41,11 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     private VistaJuego vista;
     
     int filaInicial, columnaInicial;
-    private Movimiento movimiento = null;
+
+    private Movimiento movimiento = new Movimiento(0, 0, 0, 0);
     private boolean movimientoListo = false;
+    private boolean primeraParteMovimiento = false;
+    private boolean segundaParteMovimiento = false;
     
     /**
      * Crea una nueva partida con un nuevo tablero, dos jugadores nuevos 
@@ -63,6 +66,13 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.tablero.colocarFichas();
     }
     
+    public void reiniciar() throws IOException{
+        this.tablero.colocarFichas();
+        this.turno = 0;
+        this.fin = false;
+        jugar();
+    }
+    
     /**
      * inicializa la entrada/salida por teclado y consola
      */
@@ -73,7 +83,6 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     
     public void iniciarTableroSwing(){
         vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
-        
     }
     
     /**
@@ -114,18 +123,19 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * 
      * @throws IOException 
      */
-    public void jugar() throws IOException{
+    
+    public void deeb(){
         boolean movimientoValido, turnoValido;
         iniciarConsola();
         iniciarTableroSwing();
-        vista.addControlador(this);
+        vista.addControladorDePartida(this);
         do{
             vista.actualizarTableroSwing(tablero);
             consola.imprimirLinea("PARTIDA GUARDADA");
             
             turno++;
             consola.imprimirLinea(tablero.toString());
-            guardar(this);
+           // guardar(this);
             consola.imprimir("TURNO DEL JUGADOR: ");
             consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             do {
@@ -161,7 +171,72 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
             hacerDama(this.movimiento);            
             tablero.limpiarFichasMuertas();            
             fin = finalizaLaPartida();   
-            this.movimiento = null;
+            this.movimiento = new Movimiento(0, 0, 0, 0);
+        } while ( ! fin );
+    }
+    
+    
+    public synchronized void jugar(){
+        boolean movimientoValido = false, turnoValido = false;
+        iniciarConsola();
+        iniciarTableroSwing();
+        vista.addControladorDePartida(this);
+        
+        do{
+            System.err.println("llego hasta aqui");
+            vista.actualizarTableroSwing(tablero);
+            consola.imprimirLinea("PARTIDA GUARDADA");
+            
+            turno++;
+            consola.imprimirLinea(tablero.toString());
+           // guardar(this);
+            consola.imprimir("TURNO DEL JUGADOR: ");
+            consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
+            
+            do {
+                 System.err.println("llego hasta aqui");
+//                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
+//                movimientoValido = reglas.movimientoValido(movimiento, tablero);
+//                if ( ! movimientoValido ) {
+//                    consola.imprimirError("No es un movimiento valido");
+//                }
+//                while(!movimientoListo){
+//                    System.err.println("qui estoy");
+//                    try {
+//                        Thread.sleep(100);
+//                        //System.err.println("movimiento no listo");
+//                    } catch (InterruptedException ex) {
+//                        Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
+//                    }
+//                }
+                try {
+                    wait();
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+                
+                
+                //if(movimientoListo){
+                    turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
+                    movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
+                    if(!turnoValido){
+                        this.movimiento = null;
+                        this.movimientoListo = false;
+                    }
+                    if(!movimientoValido){
+                        this.movimiento = null;
+                        this.movimientoListo = false;
+                    }
+               //}
+                
+            } while ( ! movimientoValido || ! turnoValido);
+            movimientoListo = false;
+            tablero.moverFicha(this.movimiento);
+            comerFicha(this.movimiento);          
+            hacerDama(this.movimiento);            
+            tablero.limpiarFichasMuertas();            
+            fin = finalizaLaPartida();  
         } while ( ! fin );
     }
     
@@ -238,30 +313,45 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println(e.getActionCommand());
-        CasillaSwing c = (CasillaSwing) e.getSource();
-        System.out.println("fila:"+c.getFila()+" columna:"+c.getColumna());
+        //System.out.println(e.getActionCommand());
+        
+        //System.out.println("fila:"+c.getFila()+" columna:"+c.getColumna());
         if(e.getActionCommand().equals("BLANCO") || 
                 e.getActionCommand().equals("NEGRO") ||
                 e.getActionCommand().equals("")){
-            if(movimiento == null){
+            CasillaSwing c = (CasillaSwing) e.getSource();
+            CasillaSwing[][] cs = vista.getTableroSwing().getCasillas();
+            
+           
+            
+            vista.resaltarCasilla(c.getFila(), c.getColumna());
+            if(primeraParteMovimiento == false){
                 System.err.println("cojo primera");
                 filaInicial = c.getFila();
                 columnaInicial = c.getColumna();
                 movimiento = new Movimiento(filaInicial, columnaInicial, 0, 0);
+                primeraParteMovimiento = true;
             }
             else{
                 System.err.println("cojo segunda");
                 movimiento = new Movimiento(filaInicial, columnaInicial, c.getFila(), c.getColumna());
                 movimientoListo = true;
-            }
-                
-            
+                vista.repintarTablero();
+                primeraParteMovimiento = false;
+                synchronized(movimiento){
+                   notify();
+                }
+            }  
+        } else if(e.getActionCommand().equals("Nueva partida")){
+            System.err.println("nueva");
         }
+       
     }
     
     public void vista(VistaJuego v){ 
         this.vista = v; 
     }
+
+    
 
 }
