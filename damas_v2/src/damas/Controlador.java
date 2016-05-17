@@ -42,10 +42,10 @@ public class Controlador implements java.awt.event.ActionListener{
 //            partida.iniciarTableroSwing();
 //            vista.addControladorDePartida(partida);
             
-            //partida.jugar();
+            partida.jugar();
             //vista.actualizarTableroSwing(tablero);
             //SwingUtilities.invokeLater(partida);
-            SwingUtilities.invokeLater(partida);
+//            SwingUtilities.invokeLater(partida);
             
             
         }

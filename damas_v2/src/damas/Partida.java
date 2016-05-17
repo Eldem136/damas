@@ -181,63 +181,94 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         iniciarConsola();
         iniciarTableroSwing();
         vista.addControladorDePartida(this);
-        
-        do{
-            System.err.println("llego hasta aqui");
-            vista.actualizarTableroSwing(tablero);
-            consola.imprimirLinea("PARTIDA GUARDADA");
+        nuevoTurno();
+//        do{
+//            System.err.println("llego hasta aqui");
+//            vista.actualizarTableroSwing(tablero);
+//            consola.imprimirLinea("PARTIDA GUARDADA");
+//            
+//            turno++;
+//            consola.imprimirLinea(tablero.toString());
+//           // guardar(this);
+//            consola.imprimir("TURNO DEL JUGADOR: ");
+//            consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             
-            turno++;
-            consola.imprimirLinea(tablero.toString());
-           // guardar(this);
-            consola.imprimir("TURNO DEL JUGADOR: ");
-            consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
-            
-            do {
-                 System.err.println("llego hasta aqui");
-//                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
-//                movimientoValido = reglas.movimientoValido(movimiento, tablero);
-//                if ( ! movimientoValido ) {
-//                    consola.imprimirError("No es un movimiento valido");
+//            do {
+//                 System.err.println("llego hasta aqui");
+////                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
+////                movimientoValido = reglas.movimientoValido(movimiento, tablero);
+////                if ( ! movimientoValido ) {
+////                    consola.imprimirError("No es un movimiento valido");
+////                }
+////                while(!movimientoListo){
+////                    System.err.println("qui estoy");
+////                    try {
+////                        Thread.sleep(100);
+////                        //System.err.println("movimiento no listo");
+////                    } catch (InterruptedException ex) {
+////                        Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
+////                    }
+////                }
+//                try {
+//                    wait();
+//                } catch (InterruptedException ex) {
+//                    Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
 //                }
-//                while(!movimientoListo){
-//                    System.err.println("qui estoy");
-//                    try {
-//                        Thread.sleep(100);
-//                        //System.err.println("movimiento no listo");
-//                    } catch (InterruptedException ex) {
-//                        Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
+//                
+//                
+//                
+//                //if(movimientoListo){
+//                    turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
+//                    movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
+//                    if(!turnoValido){
+//                        this.movimiento = null;
+//                        this.movimientoListo = false;
 //                    }
-//                }
-                try {
-                    wait();
-                } catch (InterruptedException ex) {
-                    Logger.getLogger(Partida.class.getName()).log(Level.SEVERE, null, ex);
-                }
+//                    if(!movimientoValido){
+//                        this.movimiento = null;
+//                        this.movimientoListo = false;
+//                    }
+//               //}
+//                
+//            } while ( ! movimientoValido || ! turnoValido);
+//            movimientoListo = false;
+//            tablero.moverFicha(this.movimiento);
+//            comerFicha(this.movimiento);          
+//            hacerDama(this.movimiento);            
+//            tablero.limpiarFichasMuertas();            
+//            fin = finalizaLaPartida();  
+    //    } while ( ! fin );
+    }
+    
+    private void nuevoTurno() {
+         vista.actualizarTableroSwing(tablero);
+           turno++;
+           
+    }
+    
+    private void terminarTurno(){
+        boolean turnoValido = false;
+        boolean movimientoValido = false;
+        turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
+        movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
+        if(!turnoValido){
+            this.movimiento = null;
+            this.movimientoListo = false;
+        }
+        else if(!movimientoValido){
+            this.movimiento = null;
+            this.movimientoListo = false;
+        }else{
                 
-                
-                
-                //if(movimientoListo){
-                    turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
-                    movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
-                    if(!turnoValido){
-                        this.movimiento = null;
-                        this.movimientoListo = false;
-                    }
-                    if(!movimientoValido){
-                        this.movimiento = null;
-                        this.movimientoListo = false;
-                    }
-               //}
-                
-            } while ( ! movimientoValido || ! turnoValido);
-            movimientoListo = false;
-            tablero.moverFicha(this.movimiento);
-            comerFicha(this.movimiento);          
-            hacerDama(this.movimiento);            
-            tablero.limpiarFichasMuertas();            
-            fin = finalizaLaPartida();  
-        } while ( ! fin );
+        movimientoListo = false;
+        tablero.moverFicha(this.movimiento);
+        comerFicha(this.movimiento);          
+        hacerDama(this.movimiento);            
+        tablero.limpiarFichasMuertas();            
+        fin = finalizaLaPartida();  
+        if(!fin)
+            nuevoTurno();
+        }
     }
     
     /**
@@ -338,9 +369,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 movimientoListo = true;
                 vista.repintarTablero();
                 primeraParteMovimiento = false;
-                synchronized(movimiento){
-                   notify();
-                }
+//                synchronized(movimiento){
+//                   notify();
+//                }
+                terminarTurno();
             }  
         } else if(e.getActionCommand().equals("Nueva partida")){
             System.err.println("nueva");
