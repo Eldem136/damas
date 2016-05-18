@@ -106,7 +106,8 @@ public class Partida implements Serializable {
             consola.imprimir("TURNO DEL JUGADOR: ");
             consola.imprimirLinea( ( turno % 2 == 1 ) ? "BLANCO" : "NEGRO" );
             do {
-                movimiento = leerMovimiento(( turno % 2 == 1 ) ? Ficha.BLANCA : Ficha.NEGRA );
+                movimiento = leerMovimiento(( turno % 2 == 1 ) ? 
+                        Ficha.BLANCA : Ficha.NEGRA );
                 movimientoValido = reglas.movimientoValido(movimiento, tablero);
                 if ( ! movimientoValido ) {
                     consola.imprimirError("No es un movimiento valido");
@@ -134,33 +135,37 @@ public class Partida implements Serializable {
      */
     private Movimiento leerMovimiento(String color) {
         int[] coordenadasMovimiento;
-        coordenadasMovimiento = new int[ Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO * 2 ];
+        coordenadasMovimiento = 
+                new int[ Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO * 2 ];
         int posicionEnVectorCoordenadas = 0;
         
         for ( int i = 0; i < Movimiento.NUMERO_COORDENADAS_EN_MOVIMIENTO; i++ ) {
-            int filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
+           int filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
             while ( filaAuxiliar < tablero.getFilaMinima() || 
                     filaAuxiliar > tablero.getFilaMaxima() ) {
                 
                 consola.imprimirLinea("Error, la fila debe estar comprendida entre " 
                         + tablero.getFilaMinima() + " y " 
                         + tablero.getFilaMaxima() + "\n");
-                filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
+               filaAuxiliar = consola.leerNumero("Introduzca la coordenada de fila");
             }
             coordenadasMovimiento[posicionEnVectorCoordenadas++] = filaAuxiliar;
             
-            int columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
+            int columnaAuxiliar = 
+                    consola.leerNumero("Introduzca la coordenada de columna");
             while ( columnaAuxiliar < tablero.getColumnaMinima()|| 
                     columnaAuxiliar > tablero.getColumnaMaxima()) {
                 
-                consola.imprimirLinea("Error, la columna debe estar comprendida entre " 
-                        + tablero.getColumnaMinima()+ " y " 
+                consola.imprimirLinea("Error, la columna debe estar comprendida "
+                        + "entre " + tablero.getColumnaMinima()+ " y " 
                         + tablero.getColumnaMaxima()+ "\n");
-                columnaAuxiliar = consola.leerNumero("Introduzca la coordenada de columna");
+                columnaAuxiliar = 
+                        consola.leerNumero("Introduzca la coordenada de columna");
             }
             coordenadasMovimiento[posicionEnVectorCoordenadas++] = columnaAuxiliar;
         }
-        if ( ! tablero.fichaDelMismoColor(coordenadasMovimiento[0], coordenadasMovimiento[1], color) ) {
+        if ( ! tablero.fichaDelMismoColor(coordenadasMovimiento[0], 
+                coordenadasMovimiento[1], color) ) {
             consola.imprimirError("Esa ficha no es de tu color");
             return leerMovimiento(color);
         }
@@ -206,7 +211,8 @@ public class Partida implements Serializable {
     }
     
     /**
-     * comprobamos si finaliza la partida, en el casi de que si indicamos de ello por la consola asignada
+     * comprobamos si finaliza la partida, en el casi de que si indicamos de 
+     * ello por la consola asignada
      * 
      * @return 
      * true si la partida finaliza

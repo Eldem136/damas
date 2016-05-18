@@ -23,7 +23,8 @@ public class ReglasDamas implements Reglas, Serializable {
     public boolean movimientoValido(Movimiento movimiento, Tablero tablero) {
         
         Ficha ficha;
-        ficha = tablero.getFicha(movimiento.getFilaInicial(), movimiento.getColInicial());
+        ficha = tablero.getFicha(
+                movimiento.getFilaInicial(), movimiento.getColInicial());
         
         int filaFinal = movimiento.getFilaFinal();
         int columnaFinal = movimiento.getColFinal();
@@ -38,7 +39,8 @@ public class ReglasDamas implements Reglas, Serializable {
         */
         else if ( ficha.mover(movimiento) == false )
             return false;
-        else if ( ! finalizaMovimientoDentroDeTablero(filaFinal, columnaFinal, tablero) )
+        else if ( ! finalizaMovimientoDentroDeTablero(
+                filaFinal, columnaFinal, tablero) )
             return false;
         else if ( ! tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
             return false;
@@ -123,8 +125,8 @@ public class ReglasDamas implements Reglas, Serializable {
      * @param movimiento movimiento realizado
      * @param tablero tablero donde se ejecuta el movimiento
      * @return 
-     * un array de dimension 2 con la fila en el tablero de la ficha comida en la posicion 0 
-     *  y la columna en la posicion 1
+     * un array de dimension 2 con la fila en el tablero de la ficha comida en 
+     *  la posicion 0 y la columna en la posicion 1
      * Reglas.COORDENADAS_NO_COMER en el caso de que no se "come" ninguna ficha
      */
     @Override
@@ -175,7 +177,8 @@ public class ReglasDamas implements Reglas, Serializable {
      * true si el movimiento termina dentro de los limites del tablero
      * false en caso contrario
      */
-    private boolean finalizaMovimientoDentroDeTablero(int filaFinal, int columnaFinal, Tablero tablero) {
+    private boolean finalizaMovimientoDentroDeTablero(int filaFinal, 
+            int columnaFinal, Tablero tablero) {
         
         if( filaFinal > tablero.getFilaMaxima() )
             return false;
