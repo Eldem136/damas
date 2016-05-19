@@ -83,6 +83,12 @@ public class ReglasDamas implements Reglas, Serializable{
             return Reglas.GANADOR_JUGADOR_1;
         else if ( fichasJugador1 == 0 )
             return Reglas.GANADOR_JUGADOR_2;
+        else if ( fichasJugador1 == 1 && fichasJugador2 > 2)
+            return Reglas.GANADOR_JUGADOR_2;
+        else if ( fichasJugador2 == 1 && fichasJugador1 > 2)
+            return Reglas.GANADOR_JUGADOR_1;
+        else if (fichasJugador1 == 1 && fichasJugador2 == 1)
+            return Reglas.EMPATE;
         else
             return Reglas.SIN_GANADOR;
         

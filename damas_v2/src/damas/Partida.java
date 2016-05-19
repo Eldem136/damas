@@ -34,7 +34,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     public Tablero tablero;
     private Reglas reglas;
     private int turno;
-    private boolean fin;
+    private String fin;
     
     /* consola que se emplea para la comunicacion por linea de comandos */
     private transient Consola consola;
@@ -61,7 +61,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.jugador2 = new Jugador(nombre2, Ficha.NEGRA);
         this.reglas = reglas;
         this.turno = 0;
-        this.fin = false;
+        this.fin = null;
         
         this.tablero.colocarFichas();
     }
@@ -69,7 +69,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     public void reiniciar() throws IOException{
         this.tablero.colocarFichas();
         this.turno = 0;
-        this.fin = false;
+        this.fin = null;
         jugar();
     }
     
@@ -242,8 +242,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         hacerDama(this.movimiento);            
         tablero.limpiarFichasMuertas();            
         fin = finalizaLaPartida();  
-        if(!fin)
+        if(fin == null)
             nuevoTurno();
+        else
+            vista.mostrarFinal(fin);
         }
     }
     
@@ -306,17 +308,29 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * true si la partida finaliza
      * false si la partida no finaliza
      */
-    private boolean finalizaLaPartida() {
+    private String finalizaLaPartida() {
         int ganador = reglas.hayGanador(tablero, jugador1.getColorFicha());
+        String texto;
         
-        if ( ganador == Reglas.SIN_GANADOR )
-            return false;
+        switch (ganador) {
+            case Reglas.SIN_GANADOR:
+                return null;
+            case Reglas.GANADOR_JUGADOR_1:
+                texto = "Gana el jugador: "+jugador1.getNombre();
+                break;
+            case Reglas.GANADOR_JUGADOR_2:
+                texto = "Gana el jugador: "+jugador2.getNombre();
+                break;
+            default:
+                texto = "¡Hay un empate!";
+                break;
+        }
         
-        consola.imprimir("Gana el jugador ");
-        consola.imprimirLinea( ganador == Reglas.GANADOR_JUGADOR_1 ? 
-                jugador1.getNombre() : jugador2.getNombre() );
+//        consola.imprimir("Gana el jugador ");
+//        consola.imprimirLinea( ganador == Reglas.GANADOR_JUGADOR_1 ? 
+//                jugador1.getNombre() : jugador2.getNombre() );
         
-        return true;
+        return texto;
     }
 
     @Override

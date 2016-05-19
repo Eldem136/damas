@@ -13,9 +13,11 @@ public interface Reglas {
     
     public static int[] COORDENADAS_NO_COMER = {-1, -1};
     
+    public static final int SIN_GANADOR = 0;
     public static final int GANADOR_JUGADOR_1 = 1;
     public static final int GANADOR_JUGADOR_2 = 2;
-    public static final int SIN_GANADOR = 0;
+    public static final int EMPATE = 3;
+    
     
     /**
      * comprueba si un movimiento es valido en el tablero

@@ -87,7 +87,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
 //        setResizable(false);
         setSize(600,500); setVisible(true);  
         setLocationRelativeTo(null);
-        //setResizable(false);
+        setResizable(false);
     }
 
    
@@ -112,6 +112,41 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         panelJuego = new JPanel();
         panelJuego.setLayout(new FlowLayout());
         getContentPane().add(panelJuego,BorderLayout.CENTER);
+    }
+    
+    public void setUIInicio(){
+        getContentPane().removeAll();
+        getContentPane().setLayout(new BorderLayout());            
+        texto = new JLabel("");
+        getContentPane().add(texto, BorderLayout.NORTH);
+        panelJuego = new JPanel();
+        panelJuego.setLayout(new FlowLayout());
+        getContentPane().add(panelJuego,BorderLayout.CENTER);
+        
+        
+        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
+        logo = new JLabel();
+        logo.setIcon(icono);
+        logo.setHorizontalAlignment(JLabel.CENTER);
+        logo.setVerticalAlignment(JLabel.CENTER);
+        getContentPane().add(logo);
+        
+        version = new JLabel();
+        version.setText(textoVersion);
+        version.setHorizontalAlignment(JLabel.CENTER);
+        getContentPane().add(version, BorderLayout.SOUTH);
+        
+        
+         
+        //crearTableroSwing(10, 10);
+        
+        //tableroSwing.setVisible(false);
+        //setBounds(250,200,250,150); 
+//        setVisible(true); 
+//        setResizable(false);
+        setSize(600,500); setVisible(true);  
+        setLocationRelativeTo(null);
+        setResizable(false);
     }
     
     public void crearTableroSwing(int filas, int columnas){      
@@ -234,5 +269,12 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     
     public void mostrarMovimientoValido(int fila, int columna){
         tableroSwing.getCasillas()[fila][columna].setBackground(java.awt.Color.green);
+    }
+    
+    public void mostrarFinal(String texto){
+        JOptionPane ventanaFin = new JOptionPane();
+        ventanaFin.showMessageDialog(ventanaFin, texto);
+        setUIInicio();
+        
     }
 }
