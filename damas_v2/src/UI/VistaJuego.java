@@ -22,16 +22,21 @@ import javax.swing.filechooser.FileNameExtensionFilter;
  */
 public class VistaJuego extends JFrame implements java.util.Observer {
     JLabel contador; 
-    JLabel texto, logo;
+    JLabel texto, logo, version;
     JPanel panelJuego;
     int filas, columnas;
     TableroSwing tableroSwing;
     static final String DEC = "Dec", INC = "Inc", INICIO = "Inicio";
     Icon iconoFichaBlanca = new ImageIcon("recursos/white_checker.png");
     Icon iconoFichaNegra = new ImageIcon("recursos/black_checker.png");
+    Icon iconoDamaBlanca = new ImageIcon("recursos/white_dama.png");
+    Icon iconoDamaNegra = new ImageIcon("recursos/black_dama.png");
     JMenu menu;
     JMenuItem nuevo, guardar, cargar;
     JMenuBar barraMenu;
+    String textoVersion = "Damas V2. EUPT Tecnología de la programación."
+            +"\n Diego Malo Mateo. \n Ezequiel Barbudo Revuelto.";
+    
      
     public VistaJuego(String titulo) {
         super(titulo);
@@ -66,6 +71,13 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         logo.setHorizontalAlignment(JLabel.CENTER);
         logo.setVerticalAlignment(JLabel.CENTER);
         getContentPane().add(logo);
+        
+        version = new JLabel();
+        version.setText(textoVersion);
+        version.setHorizontalAlignment(JLabel.CENTER);
+        getContentPane().add(version, BorderLayout.SOUTH);
+        
+        
          
         //crearTableroSwing(10, 10);
         
@@ -73,8 +85,9 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         //setBounds(250,200,250,150); 
 //        setVisible(true); 
 //        setResizable(false);
-        setBounds(250,200,400,300); setVisible(true);  
-        setResizable(false);
+        setSize(600,500); setVisible(true);  
+        setLocationRelativeTo(null);
+        //setResizable(false);
     }
 
    
@@ -93,6 +106,8 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         getContentPane().removeAll();
         getContentPane().setLayout(new BorderLayout());            
         texto = new JLabel("");
+        texto.setHorizontalAlignment(JLabel.CENTER);
+        texto.setVerticalAlignment(JLabel.CENTER);
         getContentPane().add(texto, BorderLayout.NORTH);
         panelJuego = new JPanel();
         panelJuego.setLayout(new FlowLayout());
@@ -105,8 +120,9 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         this.columnas = columnas;
         tableroSwing = new TableroSwing(filas, columnas);
         panelJuego.add(tableroSwing);        
-        setBounds(0, 0, tableroSwing.getAnchura(),
-                tableroSwing.getAltura() + 10);
+        setSize(tableroSwing.getAnchura(),
+                tableroSwing.getAltura() + 20);
+        setLocationRelativeTo(this);
         
         
     }
@@ -127,11 +143,15 @@ public class VistaJuego extends JFrame implements java.util.Observer {
                     //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "BLANCO");
                     tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
                     tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaBlanca);
+                    if(!tablero.getCasillero()[cuentaFilas][cuentaColumnas].isTransformable())
+                        tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoDamaBlanca);
                 }
                 else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.NEGRA)){
                     //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "NEGRO");
                     tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
                     tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaNegra);
+                    if(!tablero.getCasillero()[cuentaFilas][cuentaColumnas].isTransformable())
+                        tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoDamaNegra);
                 }
                 
             }
@@ -170,14 +190,14 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         String jugador2 = "";
         String jugador = "";
         while(jugador1 == ""){
-            jugador = (String)JOptionPane.showInputDialog(null, "Introduce el nombre del jugador 1.");
+            jugador = (String)JOptionPane.showInputDialog(getContentPane(), "Introduce el nombre del jugador 1.");
             if((jugador != null) && (jugador.length() > 0)){
                     jugador1 = jugador;
                     jugadores[0] = jugador1;
                 }
         }
         while(jugador2 == ""){
-            jugador = (String)JOptionPane.showInputDialog(null, "Introduce el nombre del jugador 1.");
+            jugador = (String)JOptionPane.showInputDialog(getContentPane(), "Introduce el nombre del jugador 1.");
             if((jugador != null) && (jugador.length() > 0)){
                     jugador2 = jugador;
                     jugadores[1] = jugador2;

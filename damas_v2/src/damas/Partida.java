@@ -347,9 +347,6 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 movimientoListo = true;
                 vista.repintarTablero();
                 primeraParteMovimiento = false;
-//                synchronized(movimiento){
-//                   notify();
-//                }
                 terminarTurno();
             }  
         } else if(e.getActionCommand().equals("Nueva partida")){

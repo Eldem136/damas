@@ -65,9 +65,9 @@ public class ReglasDamas implements Reglas, Serializable{
         int x;
         int y;
         
-        for ( x = tablero.getFilaMinima(); x < tablero.getFilaMaxima(); x++ ) {
+        for ( x = tablero.getFilaMinima(); x < tablero.getFilaMaxima()+1; x++ ) {
             
-           for( y = tablero.getColumnaMinima(); y < tablero.getColumnaMaxima(); y++){
+           for( y = tablero.getColumnaMinima(); y < tablero.getColumnaMaxima()+1; y++){
                 
                 if ( tablero.fichaDelMismoColor(x, y, idJugador1) )
                     fichasJugador1++;
@@ -77,6 +77,8 @@ public class ReglasDamas implements Reglas, Serializable{
             }
         }
         
+        System.out.println("jugador1= "+fichasJugador1);
+        System.out.println("jugador2= "+fichasJugador2);
         if ( fichasJugador2 == 0 )
             return Reglas.GANADOR_JUGADOR_1;
         else if ( fichasJugador1 == 0 )
