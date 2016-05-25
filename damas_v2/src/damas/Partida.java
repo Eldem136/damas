@@ -66,12 +66,7 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.tablero.colocarFichas();
     }
     
-    public void reiniciar() throws IOException{
-        this.tablero.colocarFichas();
-        this.turno = 0;
-        this.fin = null;
-        jugar();
-    }
+    
     
     /**
      * inicializa la entrada/salida por teclado y consola
