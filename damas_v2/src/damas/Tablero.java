@@ -91,7 +91,6 @@ public class Tablero extends java.util.Observable implements Serializable {
             for ( int x = 0; x < MAX_FILAS; x++ ) {
                 for ( int y = 0; y < MAX_COL; y++ ) {
                     if ( casillero[x][y].estaMuerta() ) {
-                        //System.err.println("la "+x+","+y+" esta muerta");
                         casillero[x][y] = fVacia;
                         casillero[x][y].revivir();
                     }

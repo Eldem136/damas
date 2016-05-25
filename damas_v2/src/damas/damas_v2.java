@@ -41,9 +41,9 @@ public class damas_v2 {
         vista = new VistaJuego("damas");
         
         
-        System.out.println("Damas_V2 \n-------------------------------");
-        System.out.println("1 - Nueva partida.\n2 - Cargar Partida");
-        System.out.println("-------------------------------");
+        System.out.println("Damas_V2");
+        //System.out.println("1 - Nueva partida.\n2 - Cargar Partida");
+       // System.out.println("-------------------------------");
        
        // int opcion = scan.nextInt();
         

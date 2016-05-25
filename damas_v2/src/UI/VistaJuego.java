@@ -36,6 +36,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     JMenuBar barraMenu;
     String textoVersion = "Damas V2. EUPT Tecnología de la programación."
             +"\n Diego Malo Mateo. \n Ezequiel Barbudo Revuelto.";
+    JButton btnRendirse;
     
      
     public VistaJuego(String titulo) {
@@ -100,6 +101,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     }
     public void addControladorDePartida(ActionListener controlador){
         tableroSwing.addControlador(controlador);
+        btnRendirse.addActionListener(controlador);
     }
     
     public void setUIJuego(){
@@ -112,6 +114,8 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         panelJuego = new JPanel();
         panelJuego.setLayout(new FlowLayout());
         getContentPane().add(panelJuego,BorderLayout.CENTER);
+        btnRendirse = new JButton("Rendirse");
+        getContentPane().add(btnRendirse, BorderLayout.SOUTH);
     }
     
     public void setUIInicio(){
@@ -156,7 +160,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         tableroSwing = new TableroSwing(filas, columnas);
         panelJuego.add(tableroSwing);        
         setSize(tableroSwing.getAnchura(),
-                tableroSwing.getAltura() + 20);
+                tableroSwing.getAltura() + 50);
         setLocationRelativeTo(this);
         
         
@@ -232,7 +236,7 @@ public class VistaJuego extends JFrame implements java.util.Observer {
                 }
         }
         while(jugador2 == ""){
-            jugador = (String)JOptionPane.showInputDialog(getContentPane(), "Introduce el nombre del jugador 1.");
+            jugador = (String)JOptionPane.showInputDialog(getContentPane(), "Introduce el nombre del jugador 2.");
             if((jugador != null) && (jugador.length() > 0)){
                     jugador2 = jugador;
                     jugadores[1] = jugador2;
