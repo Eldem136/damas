@@ -304,4 +304,9 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         setUIInicio();
         
     }
+    
+    public void mostrarError(String texto){
+        JOptionPane ventanaError = new JOptionPane();
+        ventanaError.showMessageDialog(ventanaError, texto);
+    }
 }

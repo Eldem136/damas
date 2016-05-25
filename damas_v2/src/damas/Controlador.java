@@ -51,7 +51,8 @@ public class Controlador implements java.awt.event.ActionListener{
                 if(partida!= null)
                     partida.guardar(partida);
             } catch (IOException ex) {
-                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                vista.mostrarError("No se ha podido guardar la partida");
             }
         }
         else if(e.getActionCommand().equals("Cargar partida")){
@@ -64,9 +65,13 @@ public class Controlador implements java.awt.event.ActionListener{
                     partida.jugar();
                 }
             } catch (IOException ex) {
-                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                vista.mostrarError("No se ha podido cargar la partida");
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
+                vista.mostrarError("No se ha podido cargar la partida");
+            } catch (Exception ex){
+                vista.mostrarError("No se ha podido cargar la partida");
             }
         }
     }
