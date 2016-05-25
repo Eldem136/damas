@@ -154,7 +154,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     }
     
     private void nuevoTurno() {
-         vista.actualizarTableroSwing(tablero);
+         //vista.actualizarTableroSwing(tablero);
+         vista.update(tablero, null);
         
            turno++;
         

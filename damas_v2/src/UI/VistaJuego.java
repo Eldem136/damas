@@ -216,7 +216,30 @@ public class VistaJuego extends JFrame implements java.util.Observer {
 
     @Override
     public void update(Observable o, Object arg) {
-        
+        Tablero tablero = (Tablero) o;
+        for(int cuentaFilas = 0; cuentaFilas<filas; cuentaFilas++){
+            for(int cuentaColumnas = 0; cuentaColumnas<columnas; cuentaColumnas++){
+                if(tablero.estaLaCasillaVacia(cuentaFilas, cuentaColumnas)){
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, null);
+                }
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.BLANCA)){
+                    //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "BLANCO");
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaBlanca);
+                    if(!tablero.getCasillero()[cuentaFilas][cuentaColumnas].isTransformable())
+                        tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoDamaBlanca);
+                }
+                else if(tablero.fichaDelMismoColor(cuentaFilas, cuentaColumnas, Ficha.NEGRA)){
+                    //tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "NEGRO");
+                    tableroSwing.textoEnCasilla(cuentaFilas, cuentaColumnas, "");
+                    tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoFichaNegra);
+                    if(!tablero.getCasillero()[cuentaFilas][cuentaColumnas].isTransformable())
+                        tableroSwing.ponerIconoCasilla(cuentaFilas, cuentaColumnas, iconoDamaNegra);
+                }
+                
+            }
+        }
     }
     
     public TableroSwing getTableroSwing(){
