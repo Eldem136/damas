@@ -44,18 +44,21 @@ public class damas_v3 {
             PrintWriter salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
             boolean fin = false;
             
+            System.out.println("como me llamo?");
+            String nombre = scan2.nextLine();
             
-            System.out.println(entrada.readLine());
-            System.out.println("pido movimiento");
-            salida.println("movimiento");
-            System.out.println("mando movimiento");
-            salida.println("2 0 5 9");
-            //System.out.println(entrada.readLine());
-            //entrada.readLine();
-            System.out.println("he leido");
-            
-            salida.println("que es esto?");
-            salida.println("rendicion");
+            salida.println(nombre);
+//            System.out.println(entrada.readLine());
+//            System.out.println("pido movimiento");
+//            salida.println("movimiento");
+//            System.out.println("mando movimiento");
+//            salida.println("2 0 5 9");
+//            //System.out.println(entrada.readLine());
+//            //entrada.readLine();
+//            System.out.println("he leido");
+//            
+//            salida.println("que es esto?");
+//            salida.println("rendicion");
         
             entrada.close();
             salida.close();

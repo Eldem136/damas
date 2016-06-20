@@ -12,7 +12,8 @@ package damas_v3_server;
 public class damas_v3_server {
     
     public static void main(String[] args){
-        Servidor servidor = new Servidor();
+        Servidor servidor = Servidor.instancia();
+        servidor.esperarClientes();
     }
     
     
