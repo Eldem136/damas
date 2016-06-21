@@ -45,6 +45,12 @@ public class HiloOyente implements Runnable {
             nombreCliente = entrada.readLine();
             insertarClienteEnBD();
             
+            String opcion = entrada.readLine();
+            
+            while ( ! opcion.equals("cerrarConexion") ) {
+                
+            }
+            
         } catch (IOException ex) {
             Logger.getLogger(HiloOyente.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -55,6 +61,8 @@ public class HiloOyente implements Runnable {
     private void insertarClienteEnBD(){
         Servidor.instancia().insertarJugadorEnBD(nombreCliente);
     }
+    
+    
     
     
     

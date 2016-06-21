@@ -5,6 +5,8 @@
  */
 package UI;
 
+import damas.Cliente;
+import damas.Controlador;
 import damas.Ficha;
 import damas.Tablero;
 import java.awt.*;
@@ -14,7 +16,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import javax.swing.*;
 import java.util.Observable;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
+import reglas.ReglasDamas;
 
 /**
  *
@@ -34,15 +39,25 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     JMenu menu;
     JMenuItem nuevo, guardar, cargar;
     JMenuBar barraMenu;
-    String textoVersion = "Damas V2. EUPT Tecnología de la programación."
+    String textoVersion = "Cliente Damas V3. EUPT Tecnología de la programación."
             +"\n Diego Malo Mateo. \n Ezequiel Barbudo Revuelto.";
     JButton btnRendirse;
+    
+    private DefaultListModel modeloListaJugadores;
+    private JList listaJugadores;
+    private JButton botonRetar;
+    private JButton botonActualizarJugadores;
+    private Cliente cliente;
     
      
     public VistaJuego(String titulo) {
         super(titulo);
         addWindowListener(new WindowAdapter() {
-          public void windowClosing(WindowEvent e) { System.exit(0); }
+          public void windowClosing(WindowEvent e) { 
+              if ( cliente != null )
+                  cliente.cerrarCliente();
+              System.exit(0);
+          }
         });  
         
         
@@ -66,12 +81,13 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         menu.add(cargar);
         menu.add(guardar);
         
-        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
-        logo = new JLabel();
-        logo.setIcon(icono);
-        logo.setHorizontalAlignment(JLabel.CENTER);
-        logo.setVerticalAlignment(JLabel.CENTER);
-        getContentPane().add(logo);
+//        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
+//        logo = new JLabel();
+//        logo.setIcon(icono);
+//        logo.setHorizontalAlignment(JLabel.CENTER);
+//        logo.setVerticalAlignment(JLabel.CENTER);
+//        getContentPane().add(logo);
+        getContentPane().add(crearListaJugadores());
         
         version = new JLabel();
         version.setText(textoVersion);
@@ -97,6 +113,8 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         nuevo.addActionListener(controlador);
         guardar.addActionListener(controlador);
         cargar.addActionListener(controlador);
+        botonRetar.addActionListener(controlador);
+        botonActualizarJugadores.addActionListener(controlador);
         
     }
     public void addControladorDePartida(ActionListener controlador){
@@ -127,30 +145,54 @@ public class VistaJuego extends JFrame implements java.util.Observer {
         panelJuego.setLayout(new FlowLayout());
         getContentPane().add(panelJuego,BorderLayout.CENTER);
         
-        
-        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
-        logo = new JLabel();
-        logo.setIcon(icono);
-        logo.setHorizontalAlignment(JLabel.CENTER);
-        logo.setVerticalAlignment(JLabel.CENTER);
-        getContentPane().add(logo);
+//        ImageIcon icono = new ImageIcon("recursos/checkers_image.png");
+//        logo = new JLabel();
+//        logo.setIcon(icono);
+//        logo.setHorizontalAlignment(JLabel.CENTER);
+//        logo.setVerticalAlignment(JLabel.CENTER);
+//        getContentPane().add(logo);
+        getContentPane().add(crearListaJugadores());
         
         version = new JLabel();
         version.setText(textoVersion);
         version.setHorizontalAlignment(JLabel.CENTER);
         getContentPane().add(version, BorderLayout.SOUTH);
-        
-        
-         
-        //crearTableroSwing(10, 10);
-        
-        //tableroSwing.setVisible(false);
-        //setBounds(250,200,250,150); 
-//        setVisible(true); 
-//        setResizable(false);
+
         setSize(600,500); setVisible(true);  
         setLocationRelativeTo(null);
         setResizable(false);
+    }
+    
+    private JPanel crearListaJugadores() {
+        JPanel panelListaJugadores = new JPanel();
+        panelListaJugadores.setLayout(new BorderLayout());
+        
+        modeloListaJugadores = new DefaultListModel();
+        listaJugadores = new JList(modeloListaJugadores);
+        listaJugadores.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        listaJugadores.setLayoutOrientation(JList.VERTICAL);
+        listaJugadores.setEnabled(true);
+        
+        listaJugadores.addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                botonRetar.setEnabled(true);
+            }
+        });
+        
+        JScrollPane scrollPanelListaJugadores = new JScrollPane(listaJugadores);
+        scrollPanelListaJugadores.setPreferredSize(new Dimension(20, 30));
+        panelListaJugadores.add(scrollPanelListaJugadores, BorderLayout.CENTER);
+        
+        botonRetar = new JButton("Retar");
+        panelListaJugadores.add(botonRetar, BorderLayout.SOUTH);
+        botonRetar.setEnabled(false);
+        
+        botonActualizarJugadores = new JButton("Actualizar lista");
+        panelListaJugadores.add(botonActualizarJugadores, BorderLayout.NORTH);
+        
+        return panelListaJugadores;
     }
     
     public void crearTableroSwing(int filas, int columnas){      
@@ -308,5 +350,49 @@ public class VistaJuego extends JFrame implements java.util.Observer {
     public void mostrarError(String texto){
         JOptionPane ventanaError = new JOptionPane();
         ventanaError.showMessageDialog(ventanaError, texto);
+    }
+    
+    public String preguntarNombre() {
+        return (String)JOptionPane.showInputDialog(getContentPane(), "Introduce tu nombre");
+    }
+    
+    public boolean preguntarReto(String nombreRival) {
+        int respuesta = JOptionPane.showConfirmDialog(getContentPane(), "Aceptas el reto de " + nombreRival + "?");
+        return respuesta == JOptionPane.OK_OPTION;
+    }
+    
+    public String getNombreJugadorRetado() {
+        return listaJugadores.getSelectedValue().toString();
+    }
+    
+    public void actualizarListaJugadores(String[] nombresJugadores) {
+        modeloListaJugadores.clear();
+        
+        for (String nuevoJugador : nombresJugadores) {
+            modeloListaJugadores.addElement(nuevoJugador);
+        }
+        
+        botonRetar.setEnabled(false);
+    }
+    
+    public void actualizarListaJugadores(ArrayList<String> nombresJugadores) {
+        modeloListaJugadores.clear();
+        
+        for (String nuevoJugador : nombresJugadores) {
+            modeloListaJugadores.addElement(nuevoJugador);
+        }
+        
+        botonRetar.setEnabled(false);
+    }
+    
+    public void setCliente(Cliente cliente){
+        this.cliente = cliente;
+    }
+    
+    public static void main(String[] args) {
+        VistaJuego v = new VistaJuego("prueba GUI");
+        Controlador c = new Controlador(new ReglasDamas());
+        v.addControlador(c);
+        c.vista(v);
     }
 }

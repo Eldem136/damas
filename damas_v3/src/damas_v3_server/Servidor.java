@@ -14,6 +14,12 @@ import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
@@ -39,6 +45,14 @@ public class Servidor{
     
     private static Servidor instancia;
     
+    private Map<String, Thread> ListaConexionesClientes;
+    private Set<Thread> ListaPartidasActuales;
+    private ExecutorService poolPartidas;
+    private final static int MAXIMO_CONEXIONES = 6;
+    
+    private final static String QUERY_BUSCAR_JUGADOR = "SELECT * FROM `648391`.jugador WHERE nombre = '%s'";
+    private final static String QUERY_JUGADOR_INSERTAR_NUEVO = "INSERT INTO jugador VALUES('%s', 0)";
+    private final static String QUERY_JUGADOR_UPDATE_GANADOR = "UPDATE `648391`.jugador SET partidas_ganadas = partidas_ganadas + 1 WHERE nombre = '%s'";
     
     private Servidor(){
         
@@ -48,7 +62,10 @@ public class Servidor{
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
         }
         conectarABaseDatos();
-        //insertarJugadorEnBD("diego");
+        
+        ListaConexionesClientes = new HashMap<>();
+        ListaPartidasActuales = new HashSet<>();
+        poolPartidas = Executors.newFixedThreadPool(MAXIMO_CONEXIONES/2);
         
     }
     
@@ -59,20 +76,37 @@ public class Servidor{
         return instancia;
     }
     
-    public void esperarClientes(){
+//    public void esperarClientes(){
+//        System.out.println("Servidor esperando clientes...");
+//        ExecutorService poolThreads = Executors.newFixedThreadPool(MAXIMO_CONEXIONES);
+//        while(true){
+//            try {
+//                socket = serverSocket.accept();
+//                
+//                poolThreads.execute(new HiloOyente(socket));
+//       
+//            } catch (IOException ex) {
+//                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }   
+//    }
+    
+    public void esperarClientes () {
         System.out.println("Servidor esperando clientes...");
-        ExecutorService poolThreads = Executors.newFixedThreadPool(20);
+        
         while(true){
             try {
                 socket = serverSocket.accept();
-                
-                poolThreads.execute(new HiloOyente(socket));
-       
+                entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                String nombreCliente = entrada.readLine();
+                System.out.println("nuevo cliente entra. socket closed? "+socket.isClosed());
+                Thread nuevaConexion = new HiloOyenteThread(socket, nombreCliente);
+                ListaConexionesClientes.put(nombreCliente, nuevaConexion);
+                nuevaConexion.start();
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-        
     }
     
     
@@ -130,7 +164,7 @@ public class Servidor{
         try {
             statement = conexion.createStatement();
             
-            statement.executeUpdate("UPDATE jugador SET partidas_ganadas = partidas_ganadas + 1 WHERE nombre = '"+nombre+"'");
+            statement.executeUpdate(String.format(QUERY_JUGADOR_UPDATE_GANADOR, nombre));
             statement.close();
         } catch (SQLException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -141,10 +175,11 @@ public class Servidor{
     public synchronized boolean insertarJugadorEnBD(String nombre){
         try {
             statement = conexion.createStatement();
-            ResultSet resultset = statement.executeQuery("SELECT * FROM `648391`.jugador WHERE nombre = '"+nombre+"'");
+            ResultSet resultset = statement.executeQuery(String.format(QUERY_BUSCAR_JUGADOR, nombre));
             
             if(!resultset.first()){
-                statement.execute("INSERT INTO jugador VALUES('"+nombre+"', 0)");
+                statement.execute(String.format(QUERY_JUGADOR_INSERTAR_NUEVO, nombre));
+                System.out.println("metoa " + nombre);
             }
 
             statement.close();
@@ -157,6 +192,20 @@ public class Servidor{
     
     public void metodo(){
         System.out.println("ey soy un metodo");
+    }
+    
+    public Set<String> listaJugadores() {
+        return ListaConexionesClientes.keySet();
+    }
+    
+    public void adiosJugador(String nombreJugador) {
+        ListaConexionesClientes.remove(nombreJugador);
+    }
+    
+    public void enviarReto(String retador, String retado) {
+        HiloOyenteThread threadJugador1 = (HiloOyenteThread) ListaConexionesClientes.get(retador);
+        HiloOyenteThread threadJugador2 = (HiloOyenteThread) ListaConexionesClientes.get(retado);
+        poolPartidas.execute(new HiloPartida(threadJugador1, threadJugador2));
     }
     
     

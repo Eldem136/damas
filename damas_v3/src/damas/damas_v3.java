@@ -38,37 +38,19 @@ public class damas_v3 {
      * @throws java.lang.ClassNotFoundException
      */
     public static void main(String[] args) throws ClassNotFoundException{
-        try {
-            Socket socket = new Socket("localhost", 10000);
-            BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            PrintWriter salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+//        try {
+            
             boolean fin = false;
-            
-            System.out.println("como me llamo?");
-            String nombre = scan2.nextLine();
-            
-            salida.println(nombre);
-//            System.out.println(entrada.readLine());
-//            System.out.println("pido movimiento");
-//            salida.println("movimiento");
-//            System.out.println("mando movimiento");
-//            salida.println("2 0 5 9");
-//            //System.out.println(entrada.readLine());
-//            //entrada.readLine();
-//            System.out.println("he leido");
-//            
-//            salida.println("que es esto?");
-//            salida.println("rendicion");
         
-            entrada.close();
-            salida.close();
-            socket.close();
+        //    entrada.close();
+          //  salida.close();
+            //socket.close();
             
             
             
 //        Partida partida = null;
 //        VistaJuego vista;
-//        Tablero tablero;
+        Tablero tablero;
 //        Controlador controlador;
 //        Reglas reglas = new ReglasDamas();
 //        vista = new VistaJuego("damas");
@@ -84,14 +66,49 @@ public class damas_v3 {
 //
 //        
 //            controlador = new Controlador(reglas);
-//            tablero = new Tablero();
+            tablero = new Tablero();
 //            tablero.addObserver(vista);
 //            controlador.vista(vista);
 //            vista.addControlador(controlador);
+            
+//            String nombreJugador = vista.preguntarNombre();
+//            System.out.println("hola "+nombreJugador);
+            
+//            Socket socket = new Socket("localhost", 10000);
+//            BufferedReader entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+//            PrintWriter salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+//            salida.println(nombreJugador);
 //            
-        } catch (IOException ex) {
-            System.err.println("OOOPS");
-        }
+            
+//            Thread oyenteEntrada = new Thread() {
+//              @Override
+//              public void run() {
+//                  String mensajeEntrada;
+//                  try {
+//                    do {
+//                         mensajeEntrada = entrada.readLine();
+//                         System.out.println("el server dice que " + mensajeEntrada);
+//                    } while (mensajeEntrada != null);
+//                  } catch (IOException ex) {
+//                      vista.mostrarError("Error de entrada salida");
+//                  }z
+//              }
+//            };
+//            
+//            oyenteEntrada.start();
+//            salida.println("movimiento");
+//            salida.println("5 0 4 1");
+            
+            
+            
+//        } catch (IOException ex) {
+//            System.err.println("OOOPS");
+//        }
+            
+            Reglas reglamento = new ReglasDamas();
+            new Cliente(reglamento);
+            
+            
         }
     
         

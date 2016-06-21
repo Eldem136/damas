@@ -25,13 +25,19 @@ public class Controlador implements java.awt.event.ActionListener{
     private Reglas reglas;
     private Tablero tablero;
     
+    private Cliente cliente;
+    
     public Controlador(Reglas reglas){
         this.reglas = reglas;
+    }
+    
+    public Controlador(Reglas reglas, Cliente cliente) {
+        this(reglas);
+        this.cliente = cliente;
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-    
         if(e.getActionCommand().equals("Nueva partida")){
             String[] jugadores = vista.pedirJugadores();
             vista.limpiarTableroSwing();
@@ -43,6 +49,7 @@ public class Controlador implements java.awt.event.ActionListener{
             tablero.addObserver(vista);
             partida.vista(vista);
             partida.jugar();
+            
             
             
         }
@@ -73,6 +80,12 @@ public class Controlador implements java.awt.event.ActionListener{
             } catch (Exception ex){
                 vista.mostrarError("No se ha podido cargar la partida");
             }
+        } else if ( e.getActionCommand().equals("Retar") ) {
+            cliente.retarJugador(vista.getNombreJugadorRetado());
+        } else if ( e.getActionCommand().equals("Retado") ) {
+            vista.mostrarError("Te han retado");
+        } else if ( e.getActionCommand().equals("Actualizar lista") ) {
+            cliente.actualizarListaJugadores();
         }
     }
     
