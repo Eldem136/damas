@@ -48,6 +48,7 @@ public class damas_v3 {
             
             
             
+            
 //        Partida partida = null;
 //        VistaJuego vista;
         Tablero tablero;
