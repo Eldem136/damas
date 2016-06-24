@@ -49,7 +49,7 @@ public class ControladorTableroJuego implements ActionListener {
                     movimientoListo = true;
                     vista.repintarTablero();
                     primeraParteMovimientoRealizada = false;
-                    cliente.terminarTurno();
+                    cliente.terminarTurno(movimiento);
                 }   break;
             case "Rendirse":
                 cliente.rendirse();

@@ -5,16 +5,19 @@
  */
 package damas_v3_server;
 
+import damas.Tablero;
+
 /**
  *
  * @author diego
  */
-public interface HiloCliente {
+public interface HiloCliente{
     public void enviaMensaje(String mensaje);
     public void esperoMensajes(HiloPartida hiloPartida);
     public String leerMensaje();
     
     public String getNombreCliente();
+    public void enviarTableto(Tablero tablero);
     
     
 }

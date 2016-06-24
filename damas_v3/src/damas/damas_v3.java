@@ -23,7 +23,7 @@ import oracle.jrockit.jfr.tools.ConCatRepository;
 import reglas.*;
 import utilidades.Movimiento;
 /**
- *
+ *5624
  * @author Ezequiel Barbudo, Diego Malo
  */
 public class damas_v3 {

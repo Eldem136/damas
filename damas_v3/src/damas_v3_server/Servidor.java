@@ -45,7 +45,7 @@ public class Servidor{
     
     private static Servidor instancia;
     
-    private Map<String, Thread> ListaConexionesClientes;
+    private Map<String, HiloOyenteThread> ListaConexionesClientes;
     private Set<Thread> ListaPartidasActuales;
     private ExecutorService poolPartidas;
     private final static int MAXIMO_CONEXIONES = 6;
@@ -97,11 +97,11 @@ public class Servidor{
         while(true){
             try {
                 socket = serverSocket.accept();
-                entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                String nombreCliente = entrada.readLine();
+                //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                //String nombreCliente = entrada.readLine();
                 System.out.println("nuevo cliente entra. socket closed? "+socket.isClosed());
-                Thread nuevaConexion = new HiloOyenteThread(socket, nombreCliente);
-                ListaConexionesClientes.put(nombreCliente, nuevaConexion);
+                HiloOyenteThread nuevaConexion = new HiloOyenteThread(socket);
+                ListaConexionesClientes.put(nuevaConexion.getNombreCliente(), nuevaConexion);
                 nuevaConexion.start();
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);

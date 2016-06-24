@@ -1,5 +1,6 @@
 package damas_v3_server;
 
+import damas.Ficha;
 import damas.Tablero;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import reglas.Reglas;
 import utilidades.Movimiento;
 
 public class HiloPartida implements Runnable{
@@ -19,38 +21,14 @@ public class HiloPartida implements Runnable{
     private int turno;
     
     private Tablero tablero;
+    
+    private Reglas reglas;
 
     public HiloPartida(HiloCliente hiloJugador1, HiloCliente hiloJugador2) {
         this.jugador1 = hiloJugador1;
         this.jugador2 = hiloJugador2;
         this.turno = 0;
     }
-
-//    @Override
-//    public void run() {
-//        
-//        try {
-//            salida2.println("Aceptar reto");
-//            salida2.println(nombre1);
-//            String respuesta = entrada2.readLine();
-//            System.out.println("la respuesta al desafio es " + respuesta);
-//            if ( respuesta.equals("OK") ){
-//                salida1.println("Reto aceptado");
-//                
-//                System.out.println("Hey! Listen! La partida entre estos dos jugadores comienza");
-//
-//                salida1.println("Ganador");
-//                salida2.println("Perdedor");
-//            
-//                System.out.println("Hey! Listen! La partiida entre estos dos jugadores ha terminado");  
-//            } else 
-//                salida1.println("Reto rechazado");
-//            
-//            
-//        } catch (IOException ex) {
-//            Logger.getLogger(HiloPartida.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//    }
 
     @Override
     public void run() {
@@ -96,18 +74,13 @@ public class HiloPartida implements Runnable{
         if ( movimientoCorrecto(movimientoLeido) ) {
 
             // calcular las fichas que se han comido
-            Movimiento[] fichasComidas = calcularFichasMuertas(movimientoLeido);
-
-            for (Movimiento fichaComida : fichasComidas) {
-                enviaFichaMuerta(fichaComida);
-            }
+            matarFichas(movimientoLeido);
 
             // comprobar si se ha hecho dama
 
-            boolean dama = calcularTransformaDama(movimientoLeido.getFilaFinal(), movimientoLeido.getColFinal(), turno);
-            if ( dama ) {
-                enviarDama(movimientoLeido);
-            }
+            transformarDama(movimientoLeido.getFilaFinal(), movimientoLeido.getColFinal(), turno);
+            
+            // eliminar fichas muertas
 
             finTurno();
 
@@ -150,38 +123,28 @@ public class HiloPartida implements Runnable{
         return false;
     }
     
-    private Movimiento[] calcularFichasMuertas(Movimiento movimientoRealizado) {
-        return null;
+    private void matarFichas(Movimiento movimientoRealizado) {
+        int[] coordenadasFichaComida = 
+                reglas.comeFicha(movimientoRealizado, tablero);
+        
+        tablero.matarFicha(coordenadasFichaComida[0], coordenadasFichaComida[1]);
     }
     
-    private boolean calcularTransformaDama(int fila, int columna, int turno) {
-        return false;
-    }
-    
-    private void enviaFichaMuerta(Movimiento fichaComida) {
-        jugador1.enviaMensaje("Muerta");
-        jugador1.enviaMensaje(Integer.toString(fichaComida.getFilaInicial()));
-        jugador1.enviaMensaje(Integer.toString(fichaComida.getColInicial()));
-
-        jugador2.enviaMensaje("Muerta");
-        jugador2.enviaMensaje(Integer.toString(fichaComida.getFilaInicial()));
-        jugador2.enviaMensaje(Integer.toString(fichaComida.getColInicial()));
-    }
-    
-    private void enviarDama(Movimiento posicionFinalDama) {
-        jugador1.enviaMensaje("Dama");
-        jugador1.enviaMensaje(posicionFinalDama.getFilaFinal() + "");
-        jugador1.enviaMensaje(posicionFinalDama.getColFinal()+ "");
-
-        jugador2.enviaMensaje("Dama");
-        jugador1.enviaMensaje(posicionFinalDama.getFilaFinal() + "");
-        jugador1.enviaMensaje(posicionFinalDama.getColFinal()+ "");
+    private void transformarDama(int fila, int columna, int turno) {
+        
+        Ficha ficha = tablero.getFicha(fila, columna);
+        
+        if ( reglas.seTransforma(ficha, fila, tablero) ){
+            tablero.cambiarADama(fila, columna);
+        }
     }
     
     private void finTurno() {
-        jugador1.enviaMensaje("Fin turno");
-        jugador2.enviaMensaje("Fin turno");
+        tablero.limpiarFichasMuertas();
+        jugador1.enviarTableto(tablero);
+        jugador2.enviarTableto(tablero);
     }
+    
     
     
     

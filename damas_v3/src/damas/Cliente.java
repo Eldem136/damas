@@ -1,9 +1,14 @@
 package damas;
 
 import UI.VistaJuego;
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
@@ -22,6 +27,8 @@ public class Cliente {
     private Socket socket;
     private BufferedReader entrada;
     private PrintWriter salida;
+    private ObjectInputStream entradaObjetos;
+    private ObjectOutputStream salidaObjetos;
     
     private String nombreJugador;
     
@@ -31,6 +38,9 @@ public class Cliente {
     private ControladorTableroJuego controladorPartida;
     
     private String miColor;
+    private boolean esMiTurno;
+    private final static String MENSAJE_ES_MI_TURNO = "Jugador %s es tu turno de seleccionar movimiento";
+    private final static String MENSAJE_NO_ES_MI_TURNO = "Esperando al servidor";
     
     public Cliente(Reglas reglamento) {
         vista = new VistaJuego("damas");
@@ -42,7 +52,7 @@ public class Cliente {
         vista.setCliente(this);
         
         crearConexionServidor();
-        
+        System.out.println("he salido");
         comenzarAEsperarEntrada();
 
     }
@@ -50,12 +60,22 @@ public class Cliente {
     
     private void crearConexionServidor() {
         try {
+            System.out.println("comienzo conexion server");
             socket = new Socket("localhost", 10000);
-            entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            //salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
+            //entradaObjetos = new ObjectInputStream(socket.getInputStream());
+            //entradaObjetos = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             
+            salidaObjetos = new ObjectOutputStream(socket.getOutputStream());
+            salidaObjetos.flush();
+            entradaObjetos = new ObjectInputStream(socket.getInputStream());
+            
+            System.out.println("termino conexion, voy a preguntar");
             nombreJugador = vista.preguntarNombre();
-            salida.println(nombreJugador);
+            //salida.println(nombreJugador);
+            salidaObjetos.writeObject(nombreJugador);
+            salidaObjetos.flush();
             
         } catch (IOException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
@@ -70,7 +90,8 @@ public class Cliente {
                 String mensajeEntrada;
                 try {
                   do {
-                       mensajeEntrada = entrada.readLine();
+                       //mensajeEntrada = entrada.readLine();
+                       mensajeEntrada = entradaObjetos.readObject().toString();
                        System.out.println("el server dice que " + mensajeEntrada);
                        switch ( mensajeEntrada ) {
                            case "Actualizar lista":
@@ -80,24 +101,32 @@ public class Cliente {
                                
                            case "Ganador":
                                System.out.println("he ganado :)");
-                               salida.println("Ganador");
+                               //salida.println("Ganador");
+                               salidaObjetos.writeObject("Ganador");
+                               salidaObjetos.flush();
                                break;
                            case "Perdedor":
                                System.out.println("he perdido :(");
-                               salida.println("Perdedor");
+                               //salida.println("Perdedor");
+                               salidaObjetos.writeObject("Perdedor");
+                               salidaObjetos.flush();
                                break;
                            case "Aceptar reto":
-                               mensajeEntrada = entrada.readLine();
+                               //mensajeEntrada = entrada.readLine();
+                               mensajeEntrada = entradaObjetos.readObject().toString();
                                boolean aceptas = vista.preguntarReto(mensajeEntrada);
-                               System.out.println("se acepta?" + aceptas);
+       System.out.println("se acepta?" + aceptas);
                                if ( aceptas ) {
-                                   salida.println("Aceptar reto");
+                                   //salida.println("Aceptar reto");
+                                   salidaObjetos.writeObject("Aceptar reto");
+                                   salidaObjetos.flush();
                                    iniciarPartida(false);
                                }
                                else 
                                    salida.println("Cancelar reto");
+                               break;
                            case "Reto aceptado":
-                               System.out.println("aceptas el desafio");
+                               System.out.println("acepta mi desafio");
                                iniciarPartida(true);
                                break;
                            case "Reto rechazado":
@@ -106,12 +135,17 @@ public class Cliente {
                            case "Salir":
                                mensajeEntrada = null;
                                break;
+                           case "Fin turno":
+                               actualizaTablero();
+                               break;
                            default:
                                System.out.println("Ai dont anderstand llu");
                        }
                   } while ( mensajeEntrada != null );
                 } catch (IOException ex) {
                     vista.mostrarError("Error de entrada salida");
+                } catch (ClassNotFoundException ex) {
+                    Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
         };
@@ -121,43 +155,64 @@ public class Cliente {
     }
     
     public void actualizarListaJugadores() {
-        System.out.println("actualizare la lista");
-        
-        salida.println("Actualizar lista");
-        
+        try {
+            System.out.println("actualizare la lista");
+            
+            //salida.println("Actualizar lista");
+            salidaObjetos.writeObject("Actualizar lista");
+            salidaObjetos.flush();
+            
 //        String[] jugadores = {"diego", "ezequiel", "jugador1", "pruebasGUI2"};
 //        vista.actualizarListaJugadores(jugadores);
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
     }
     
     private void leerListaActualizada() {
         ArrayList<String> listaJugadores = new ArrayList<>();
         try {
-            String mensaje = entrada.readLine();
+            //String mensaje = entrada.readLine();
+            String mensaje = entradaObjetos.readObject().toString();
             while ( ! mensaje.equals("OK") ) {
                 listaJugadores.add(mensaje);
-                mensaje = entrada.readLine();
+                //mensaje = entrada.readLine();
+                mensaje = entradaObjetos.readObject().toString();
             }
             
         } catch (IOException ex) {
             vista.mostrarError("Error en la recepcion de datos con el servidor");
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             vista.actualizarListaJugadores(listaJugadores);
         }
     }
     
     public void retarJugador(String nombreRival) {
-        System.out.println("retare a "  + nombreRival);
+        try {
+            System.out.println("retare a "  + nombreRival);
+            
+            //salida.println("Retar");
+            //salida.println(nombreRival);
+            salidaObjetos.writeObject("Retar");
+            salidaObjetos.flush();
+            salidaObjetos.writeObject(nombreRival);
+            salidaObjetos.flush();
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
         
-        salida.println("Retar");
-        salida.println(nombreRival);
     }
     
     public void cerrarCliente() {
         try {
-            salida.println("Cerrar");
-            entrada.close();
-            salida.close();
+            //salida.println("Cerrar");
+            salidaObjetos.writeObject("Cerrar");
+            salidaObjetos.flush();
+            entradaObjetos.close();
+            salidaObjetos.close();
             socket.close();
         } catch (IOException ex) {
             vista.mostrarError("Fallo en la comunicacion con el servidor");
@@ -166,14 +221,24 @@ public class Cliente {
     
     private void iniciarPartida(boolean soyJugador1) {
         tablero = new Tablero();
-        miColor = ( soyJugador1 ? Ficha.BLANCA: Ficha.NEGRA );
-        
+        tablero.colocarFichas();
+        miColor = ( soyJugador1 ? Ficha.NEGRA : Ficha.BLANCA );
+        System.out.println("soy el jugador " + nombreJugador + " y me tocan " + miColor + " el bool es " + soyJugador1);
         controladorPartida = new ControladorTableroJuego(this, vista);
-        
+
         vista.setUIJuego();
         vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
         vista.addControladorDePartida(controladorPartida);
+
+        vista.update(tablero, null);
+
+
+        vista.cambiarTexto( ( soyJugador1 ?  MENSAJE_NO_ES_MI_TURNO : String.format(MENSAJE_ES_MI_TURNO, "blanco") ) );
+        
+        esMiTurno = soyJugador1;
     }
+    
+
     
     public Tablero getTablero() {
         return tablero;
@@ -266,8 +331,15 @@ public class Cliente {
         
     }
     
-    public void terminarTurno() {
-        // sin implementar
+    public void terminarTurno(Movimiento movimiento) {
+        try {
+            System.out.println("mando al servidor el movimiento " + movimiento.toString());
+            salidaObjetos.writeObject("Movimiento");
+            salidaObjetos.writeObject(movimiento.getFilaInicial()+" "+movimiento.getColInicial()+" "+movimiento.getFilaFinal()+" "+movimiento.getColFinal());
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
     }
     
     public void rendirse() {
@@ -275,6 +347,25 @@ public class Cliente {
         // conceder( (turno % 2 == 1) ? jugador2.getNombre() : jugador1.getNombre() );
     }
     
+    public void actualizaTablero() {
+        
+        try {
+            tablero = (Tablero) entradaObjetos.readObject();
+            
+            vista.update(tablero, null);
+            vista.cambiarTexto(MENSAJE_NO_ES_MI_TURNO);
+        } catch (IOException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (ClassNotFoundException ex) {
+            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
     
+    private void iniciarTurno() {
+        String mensaje = String.format(MENSAJE_ES_MI_TURNO, (miColor.equals(Ficha.BLANCA)? "blanco":"negro"));
+        vista.cambiarTexto(mensaje);
+        esMiTurno = true;
+        
+    }
     
 }
