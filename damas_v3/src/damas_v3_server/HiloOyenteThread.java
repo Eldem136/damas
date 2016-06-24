@@ -164,7 +164,7 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
     private synchronized void respuestaReto(String respuesta) {
         mensajesParaPartida.offer(respuesta);
         synchronized(partida) {
-            partida.notifyAll();
+            partida.notify();
         }
     }
     
