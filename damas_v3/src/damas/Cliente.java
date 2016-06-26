@@ -92,7 +92,7 @@ public class Cliente {
                   do {
                        //mensajeEntrada = entrada.readLine();
                        mensajeEntrada = entradaObjetos.readObject().toString();
-                       System.out.println("el server dice que " + mensajeEntrada);
+System.out.println("el server dice que " + mensajeEntrada);
                        switch ( mensajeEntrada ) {
                            case "Actualizar lista":
                                System.out.println("me mandan la lista");
@@ -101,15 +101,13 @@ public class Cliente {
                                
                            case "Ganador":
                                System.out.println("he ganado :)");
-                               //salida.println("Ganador");
-                               salidaObjetos.writeObject("Ganador");
-                               salidaObjetos.flush();
+                               vista.mostrarFinal("HAS GANADO :D");
+                               vista.addControlador(controlador);
                                break;
                            case "Perdedor":
                                System.out.println("he perdido :(");
-                               //salida.println("Perdedor");
-                               salidaObjetos.writeObject("Perdedor");
-                               salidaObjetos.flush();
+                               vista.mostrarFinal("Has perdido, buuuuu!");
+                               vista.addControlador(controlador);
                                break;
                            case "Aceptar reto":
                                //mensajeEntrada = entrada.readLine();
@@ -137,6 +135,9 @@ public class Cliente {
                                break;
                            case "Fin turno":
                                actualizaTablero();
+                               break;
+                           case "Empieza turno":
+                               iniciarTurno();
                                break;
                            default:
                                System.out.println("Ai dont anderstand llu");
@@ -221,7 +222,8 @@ public class Cliente {
     
     private void iniciarPartida(boolean soyJugador1) {
         tablero = new Tablero();
-        tablero.colocarFichas();
+        //tablero.colocarFichas();
+        tablero.colocarFichasParaGanar();
         miColor = ( soyJugador1 ? Ficha.NEGRA : Ficha.BLANCA );
         System.out.println("soy el jugador " + nombreJugador + " y me tocan " + miColor + " el bool es " + soyJugador1);
         controladorPartida = new ControladorTableroJuego(this, vista);
@@ -233,9 +235,9 @@ public class Cliente {
         vista.update(tablero, null);
 
 
-        vista.cambiarTexto( ( soyJugador1 ?  MENSAJE_NO_ES_MI_TURNO : String.format(MENSAJE_ES_MI_TURNO, "blanco") ) );
+        vista.cambiarTexto( ( ! soyJugador1 ?  String.format(MENSAJE_ES_MI_TURNO, "blanco") : MENSAJE_NO_ES_MI_TURNO ) );
         
-        esMiTurno = soyJugador1;
+        esMiTurno = ! soyJugador1;
     }
     
 
@@ -332,10 +334,12 @@ public class Cliente {
     }
     
     public void terminarTurno(Movimiento movimiento) {
+        if ( ! esMiTurno )
+            return;
         try {
             System.out.println("mando al servidor el movimiento " + movimiento.toString());
             salidaObjetos.writeObject("Movimiento");
-            salidaObjetos.writeObject(movimiento.getFilaInicial()+" "+movimiento.getColInicial()+" "+movimiento.getFilaFinal()+" "+movimiento.getColFinal());
+            salidaObjetos.writeObject(movimiento);
         } catch (IOException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -348,16 +352,16 @@ public class Cliente {
     }
     
     public void actualizaTablero() {
-        
+        System.out.println("leere el tablero");
         try {
             tablero = (Tablero) entradaObjetos.readObject();
-            
+            System.out.println("tengo el tablero nuevo " + tablero.toString());
             vista.update(tablero, null);
             vista.cambiarTexto(MENSAJE_NO_ES_MI_TURNO);
         } catch (IOException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Error de entrada/salida al actualizar el tablero");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Error de clase al actualizar el tablero");
         }
     }
     

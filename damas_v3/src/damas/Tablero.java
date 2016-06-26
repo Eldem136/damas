@@ -317,6 +317,18 @@ public class Tablero extends java.util.Observable implements Serializable {
     public Ficha[][] getCasillero(){
         return this.casillero;
     }
+    
+    public void colocarFichasParaGanar() {
+        for ( int x = filaMinima; x <= filaMaxima; x++ ) {
+            for ( int y = columnaMinima; y <= columnaMaxima; y++ ) {
+                casillero[x][y] = new Peon(Ficha.VACIA);
+            }
+        }
+        
+        casillero[2][2] = new Peon(Ficha.NEGRA);
+        casillero[1][1] = new Peon(Ficha.BLANCA);
+        casillero[3][3] = new Peon(Ficha.BLANCA);
+    }
 
     
     

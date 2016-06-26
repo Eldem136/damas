@@ -5,7 +5,9 @@
  */
 package utilidades;
 
-public class Movimiento {
+import java.io.Serializable;
+
+public class Movimiento implements Serializable{
     private int filaInicial;
     private int colInicial;
     private int filaFinal;

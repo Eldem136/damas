@@ -21,6 +21,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import utilidades.Movimiento;
 
 /**
  *
@@ -115,9 +116,10 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
                 switch(lectura){
                     case "Movimiento":
                         //lectura = entrada.readLine();
-                        lectura = entradaObjetos.readObject().toString();
-                        System.out.println("pasa: "+lectura);
-                        ejecutarMovimiento(lectura);
+                        //lectura = entradaObjetos.readObject().toString();
+                        Movimiento movimientoLeido = (Movimiento) entradaObjetos.readObject();
+                        System.out.println("pasa: "+movimientoLeido.toString());
+                        ejecutarMovimiento(movimientoLeido);
                         break;
                     case "rendicion":
                         System.out.println("ha ganado el que no se ha rendido");
@@ -161,16 +163,20 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         Servidor.instancia().adiosJugador(nombreCliente);
     }
     
-    private void ejecutarMovimiento(String lectura) {
-        try {
-            String[] leido = lectura.split(" ");
-            System.out.println("long: "+leido.length);
+    private void ejecutarMovimiento(Movimiento movimiento) {
+        
+            //String[] leido = lectura.split(" ");
+            //System.out.println("long: "+leido.length);
             //salida.println("muevo a ");
-            salidaObjetos.writeObject("muevo a ");
-            salidaObjetos.flush();
-            System.out.println("respuesta");
-        } catch (IOException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            
+//        mensajesParaPartida.offer(Integer.toString(movimiento.getFilaInicial()));
+//        mensajesParaPartida.offer(Integer.toString(movimiento.getColInicial()));
+//        mensajesParaPartida.offer(Integer.toString(movimiento.getFilaFinal()));
+//        mensajesParaPartida.offer(Integer.toString(movimiento.getColFinal()));
+        mensajesParaPartida.offer(movimiento.getFilaInicial()+" "+movimiento.getColInicial()+" "+movimiento.getFilaFinal()+" "+movimiento.getColFinal());
+
+        synchronized(partida) {
+            partida.notify();
         }
     }
     
@@ -241,13 +247,38 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
             //salida.println("Fin turno");
             salidaObjetos.writeObject("Fin turno");
             salidaObjetos.flush();
-        
+            System.out.println("Thread: enviare el tablero" + tablero.toString());
+            salidaObjetos.reset();
             salidaObjetos.writeObject(tablero);
             salidaObjetos.flush();
         } catch (IOException ex) {
             Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
+
+    @Override
+    public void haGanado() {
+        try {
+            salidaObjetos.writeObject("Ganador");
+            Servidor.instancia().aumentarPartidasGanadasJugador(nombreCliente);
+            Servidor.instancia().addUsuarioDisponible(nombreCliente);
+        } catch (IOException ex) {
+            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        
+    }
+
+    @Override
+    public void haPerdido() {
+        try {
+            salidaObjetos.writeObject("Perdedor");
+            Servidor.instancia().addUsuarioDisponible(nombreCliente);
+        } catch (IOException ex) {
+            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    
     
     
     

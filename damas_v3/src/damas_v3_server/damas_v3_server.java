@@ -5,6 +5,8 @@
  */
 package damas_v3_server;
 
+import reglas.ReglasDamas;
+
 /**
  *
  * @author Zeko
@@ -13,7 +15,9 @@ public class damas_v3_server {
     
     public static void main(String[] args){
         Servidor servidor = Servidor.instancia();
+        servidor.setReglas(new ReglasDamas());
         servidor.esperarClientes();
+        
     }
     
     

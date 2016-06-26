@@ -24,6 +24,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import reglas.Reglas;
 
 /**
  *
@@ -46,13 +47,15 @@ public class Servidor{
     private static Servidor instancia;
     
     private Map<String, HiloOyenteThread> ListaConexionesClientes;
-    private Set<Thread> ListaPartidasActuales;
+    private Set<String> usuariosConectadosDisponibles;
     private ExecutorService poolPartidas;
-    private final static int MAXIMO_CONEXIONES = 6;
+    private final static int MAXIMO_CONEXIONES = 20;
     
     private final static String QUERY_BUSCAR_JUGADOR = "SELECT * FROM `648391`.jugador WHERE nombre = '%s'";
     private final static String QUERY_JUGADOR_INSERTAR_NUEVO = "INSERT INTO jugador VALUES('%s', 0)";
     private final static String QUERY_JUGADOR_UPDATE_GANADOR = "UPDATE `648391`.jugador SET partidas_ganadas = partidas_ganadas + 1 WHERE nombre = '%s'";
+    
+    private Reglas reglamento;
     
     private Servidor(){
         
@@ -64,7 +67,7 @@ public class Servidor{
         conectarABaseDatos();
         
         ListaConexionesClientes = new HashMap<>();
-        ListaPartidasActuales = new HashSet<>();
+        usuariosConectadosDisponibles = new HashSet<>();
         poolPartidas = Executors.newFixedThreadPool(MAXIMO_CONEXIONES/2);
         
     }
@@ -102,44 +105,12 @@ public class Servidor{
                 System.out.println("nuevo cliente entra. socket closed? "+socket.isClosed());
                 HiloOyenteThread nuevaConexion = new HiloOyenteThread(socket);
                 ListaConexionesClientes.put(nuevaConexion.getNombreCliente(), nuevaConexion);
+                usuariosConectadosDisponibles.add(nuevaConexion.getNombreCliente());
                 nuevaConexion.start();
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }
-    
-    
-    private void leerOrdenes() throws IOException{
-        System.out.println("leyendo ordenes");
-        boolean fin = false;
-        String lectura;
-        do{
-            lectura = entrada.readLine();
-            System.out.println("he leido: "+lectura);
-            switch(lectura){
-                case "movimiento":
-                    lectura = entrada.readLine();
-                    System.out.println("pasa: "+lectura);
-                    ejecutarMovimiento(lectura);
-                    break;
-                case "rendicion":
-                    System.out.println("ha ganado el que no se ha rendido");
-                    fin = true;
-                    break;
-                default:
-                    System.out.println("Ai dont anderstand llu");
-                    break;
-            }
-        }while(!fin);
-        
-    }
-
-    private void ejecutarMovimiento(String lectura) {
-        String[] leido = lectura.split(" ");
-        System.out.println("long: "+leido.length);
-        salida.println("muevo a ");
-        System.out.println("respuesta");
     }
     
     private void conectarABaseDatos(){
@@ -190,12 +161,9 @@ public class Servidor{
         return true;
     }
     
-    public void metodo(){
-        System.out.println("ey soy un metodo");
-    }
-    
     public Set<String> listaJugadores() {
-        return ListaConexionesClientes.keySet();
+        //return ListaConexionesClientes.keySet();
+        return usuariosConectadosDisponibles;
     }
     
     public void adiosJugador(String nombreJugador) {
@@ -205,7 +173,21 @@ public class Servidor{
     public void enviarReto(String retador, String retado) {
         HiloOyenteThread threadJugador1 = (HiloOyenteThread) ListaConexionesClientes.get(retador);
         HiloOyenteThread threadJugador2 = (HiloOyenteThread) ListaConexionesClientes.get(retado);
-        poolPartidas.execute(new HiloPartida(threadJugador1, threadJugador2));
+        usuariosConectadosDisponibles.remove(retador);
+        usuariosConectadosDisponibles.remove(retado);
+        poolPartidas.execute(new HiloPartida(threadJugador1, threadJugador2, reglamento));
+    }
+    
+    public void setReglas(Reglas reglas) {
+        this.reglamento = reglas;
+    }
+    
+    public void addCliente(String nombre, HiloCliente thread) {
+        ListaConexionesClientes.put(nombre, (HiloOyenteThread)thread);
+    }
+    
+    public void addUsuarioDisponible(String nombre) {
+        usuariosConectadosDisponibles.add(nombre);
     }
     
     

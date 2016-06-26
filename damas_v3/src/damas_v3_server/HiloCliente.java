@@ -18,6 +18,8 @@ public interface HiloCliente{
     
     public String getNombreCliente();
     public void enviarTableto(Tablero tablero);
+    public void haGanado();
+    public void haPerdido();
     
     
 }
