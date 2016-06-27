@@ -1,40 +1,55 @@
 package damas;
 
 import UI.VistaJuego;
-import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import reglas.Reglas;
+import utilidades.LectorXML;
 import utilidades.Movimiento;
 
 public class Cliente {
 
+    /* referencia a la interfaz grafica y al controlador de la vista 
+    principal de esta */
     private VistaJuego vista;
     private Controlador controlador;
     
+    /* atributos de la conexion con el servidor */
+    private String direccion;
+    private int puerto;
     private Socket socket;
     private ObjectInputStream entradaObjetos;
     private ObjectOutputStream salidaObjetos;
     
+    /* nombre del jugador */
     private String nombreJugador;
     
+    /* Thread auxiliar para controlar la entrada sin quedarse 
+    el thread principal en espera */
     private Thread oyenteEntrada;
     
+    /* atributos del tablero y controlador de este */
     private Tablero tablero;
     private ControladorTableroJuego controladorPartida;
     
+    /* atributos de control de turno */
     private String miColor;
     private boolean esMiTurno;
     private final static String MENSAJE_ES_MI_TURNO = 
             "Jugador %s es tu turno de seleccionar movimiento";
     private final static String MENSAJE_NO_ES_MI_TURNO = 
             "Esperando al servidor";
+    
+    /* atributos de lectura del xml con los datos de conexion */
+    private final static String FICHERO_XML = "recursos/info_conexion.xml";
+    private LectorXML lectorXML;
     
     /**
      * Crea un nuevo cliente con un reglamento
@@ -48,9 +63,30 @@ public class Cliente {
         controlador.vista(vista);
         vista.setCliente(this);
         
+        cargarInfoConexion();
+        
         crearConexionServidor();
         comenzarAEsperarEntrada();
 
+    }
+    
+    /**
+     * Carga los datos de conexion con el servidor
+     */
+    private void cargarInfoConexion() {
+        try {
+            System.out.println("intento crear lector");
+            File ficheroXML = new File(FICHERO_XML);
+            lectorXML = new LectorXML(new FileInputStream(ficheroXML));
+            System.out.println("creo lector");
+            direccion = lectorXML.getValorEtiqueta("direccion");
+            System.out.println("leo direccion: "+direccion);
+            puerto = Integer.parseInt(lectorXML.getValorEtiqueta("puerto"));
+            System.out.println("leo puerto: " + puerto);
+            
+        } catch (Exception ex) {
+            vista.mostrarError("Error al cargar los datos de la conexion con el servidor");
+        } 
     }
     
     /**
@@ -59,7 +95,7 @@ public class Cliente {
      */
     private void crearConexionServidor() {
         try {
-            socket = new Socket("localhost", 10000);
+            socket = new Socket(direccion, puerto);
             
             salidaObjetos = new ObjectOutputStream(socket.getOutputStream());
             salidaObjetos.flush();
@@ -89,47 +125,35 @@ public class Cliente {
                   do {
                        mensajeEntrada = entradaObjetos.readObject().toString();
                        switch ( mensajeEntrada ) {
-                           case "Actualizar lista":
+                           case MensajesConexion.ACTUALIZAR_LISTA_USUARIOS:
                                leerListaActualizada();
                                break;
-                           case "Ganador":
+                           case MensajesConexion.GANADOR:
                                vista.mostrarFinal("HAS GANADO :D");
                                vista.addControlador(controlador);
                                break;
-                           case "Perdedor":
+                           case MensajesConexion.PERDEDOR:
                                vista.mostrarFinal("Has perdido, buuuuu!");
                                vista.addControlador(controlador);
                                break;
-                           case "Aceptar reto":
-                               mensajeEntrada = 
-                                       entradaObjetos.readObject().toString();
-                               boolean aceptar = 
-                                       vista.preguntarReto(mensajeEntrada);
-                               if ( aceptar ) {
-                                   salidaObjetos.writeObject("Aceptar reto");
-                                   salidaObjetos.flush();
-                                   iniciarPartida(false);
-                               }
-                               else {
-                                    salidaObjetos.writeObject(
-                                           MensajesConexion.CANCELAR_RETO);
-                                    salidaObjetos.flush();
-                               }
+                           case MensajesConexion.ACEPTAR_RETO:
+                               mensajeEntrada = entradaObjetos.readObject().toString();
+                               aceptarReto(mensajeEntrada);
                                break;
-                           case "Reto aceptado":
+                           case MensajesConexion.RETO_ACEPTADO:
                                iniciarPartida(true);
                                break;
-                           case "Reto rechazado":
+                           case MensajesConexion.RETO_RECHAZADO:
                                vista.mostrarError("El otro usuario ha "
                                        + "rechazado el reto");
                                break;
-                           case "Salir":
+                           case MensajesConexion.SALIR:
                                mensajeEntrada = null;
                                break;
-                           case "Fin turno":
+                           case MensajesConexion.FIN_TURNO:
                                actualizaTablero();
                                break;
-                           case "Empieza turno":
+                           case MensajesConexion.EMPIEZA_TURNO:
                                iniciarTurno();
                                break;
                        }
@@ -152,7 +176,7 @@ public class Cliente {
     public void actualizarListaJugadores() {
         try {
             
-            salidaObjetos.writeObject("Actualizar lista");
+            salidaObjetos.writeObject(MensajesConexion.ACTUALIZAR_LISTA_USUARIOS);
             salidaObjetos.flush();
             
         } catch (IOException ex) {
@@ -372,7 +396,7 @@ public class Cliente {
         if ( ! esMiTurno )
             return;
         try {
-            salidaObjetos.writeObject("Movimiento");
+            salidaObjetos.writeObject(MensajesConexion.MOVIMIENTO);
             salidaObjetos.flush();
             salidaObjetos.writeObject(movimiento);
             salidaObjetos.flush();
@@ -416,6 +440,25 @@ public class Cliente {
                 (miColor.equals(Ficha.BLANCA) ? "blanco" : "negro"));
         vista.cambiarTexto(mensaje);
         esMiTurno = true;
+    }
+    
+    /**
+     * Muestra un mensaje al usuario preguntando si acepta un reto del jugador leido
+     * @throws IOException si se produce un error de entrada/salida en el socket
+     */
+    private void aceptarReto(String rival) throws IOException {
+        boolean aceptar = 
+                vista.preguntarReto(rival);
+        if ( aceptar ) {
+            salidaObjetos.writeObject(MensajesConexion.ACEPTAR_RETO);
+            salidaObjetos.flush();
+            iniciarPartida(false);
+        }
+        else {
+             salidaObjetos.writeObject(
+                    MensajesConexion.CANCELAR_RETO);
+             salidaObjetos.flush();
+        }
     }
     
 }
