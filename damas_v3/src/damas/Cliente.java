@@ -1,3 +1,8 @@
+/**
+ * Cliente.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
+ */
 package damas;
 
 import UI.VistaJuego;
@@ -47,7 +52,8 @@ public class Cliente {
     private final static String MENSAJE_NO_ES_MI_TURNO = 
             "Esperando al servidor";
     
-    /* atributos de lectura del xml con los datos de conexion */
+    /* atributos de lectura del xml con los datos de conexion utilizando la 
+    herramienta del ejemplo SimpleQue*/
     private final static String FICHERO_XML = "recursos/info_conexion.xml";
     private LectorXML lectorXML;
     

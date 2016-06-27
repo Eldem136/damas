@@ -13,14 +13,10 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import reglas.Reglas;
-import reglas.ReglasDamas;
 import utilidades.Consola;
 import utilidades.Movimiento;
 
@@ -66,8 +62,6 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.tablero.colocarFichas();
     }
     
-    
-    
     /**
      * inicializa la entrada/salida por teclado y consola
      */
@@ -75,7 +69,9 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.consola = new Consola();
     }
     
-    
+    /**
+     * Inicia el tablero grafico realizado usando Java Swing
+     */
     public void iniciarTableroSwing(){
         vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
     }
@@ -86,13 +82,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @param partida la partida que se guarda
      * @throws IOException 
      */
-    public boolean guardar(Partida partida) throws IOException{        
-//        ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("partidasGuardadas/j1_VS_j2.dat"));
-//        out.writeObject(partida);
-//        out.close();
+    public boolean guardar(Partida partida) throws IOException{       
         String ruta = vista.guardarPartida();
         if(ruta != null){
-            turno--; //corregir doble paso de turno por guardar y ejecutar nuevo turno dos veces
+            turno--; //correccion para turnos duplicados al guardar/cargar
             File f = new File(ruta+".dat");
             f.createNewFile();
             ObjectOutputStream out = new ObjectOutputStream(
@@ -125,18 +118,12 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     }
     
     /**
-     * Comienza una partida
-     * La partida consiste en una iteracion hasta que hay un ganador
-     * El bucle guarda la partida antes de cada turno, muestra el teclado, 
-     * pide un movimiento y comprueba que sea válido, mueve la ficha, comprueba 
-     * si se comen fichas o se combierten damas y si se termina la partida
+     * Comienza una partida iniciando el primer turno
      * 
-     * @throws IOException 
+     * Una partida consiste en una sucesion de turnos que empiezan en nuevoTurno
+     * y terminan en terminarTurno
+     * 
      */
-    
-
-    
-    
     public synchronized void jugar(){
         boolean movimientoValido = false, turnoValido = false;
         movimiento = null;
@@ -147,55 +134,60 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         vista.addControladorDePartida(this);
         nuevoTurno();
     }
-    
+   
+    /**
+     * Comienza un nuevo turno y actualiza la interfaz
+     */
     private void nuevoTurno() {
-         //vista.actualizarTableroSwing(tablero);
-         vista.update(tablero, null);
-        
-           turno++;
-        
-        vista.cambiarTexto("Turno de las fichas "+((turno % 2 == 1) ?
-                "Blancas. ("+jugador1.getNombre()+")" :
-                "Negras. ("+jugador2.getNombre()+")"));
-           
+        vista.update(tablero, null);
+
+        turno++;
+
+        vista.cambiarTexto("Turno de las fichas " + ((turno % 2 == 1)
+                ? "Blancas. (" + jugador1.getNombre() + ")"
+                : "Negras. (" + jugador2.getNombre() + ")"));
     }
     
+    /**
+     * Comprueba que el movimiento solicitado es legal y de ser asi lo aplica
+     * y cambia de turno o termina la partida, segun proceda
+     */
     private void terminarTurno(){
-        boolean turnoValido = false;
-        boolean movimientoValido = false;
-        turnoValido = leerTurnoMovimiento(movimiento, (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA);
+        boolean turnoValido;
+        boolean movimientoValido;
+        
+        turnoValido = comprobarColorMovimiento(movimiento);
         movimientoValido = reglas.movimientoValido(this.movimiento, tablero);
-        if(!turnoValido){
+        if ( ! turnoValido ) {
             this.movimiento = null;
-            this.movimientoListo = false;
         }
-        else if(!movimientoValido){
+        else if ( ! movimientoValido ) {
             this.movimiento = null;
-            this.movimientoListo = false;
-        }else{
-                
-        movimientoListo = false;
-        tablero.moverFicha(this.movimiento);
-        comerFicha(this.movimiento);          
-        hacerDama(this.movimiento);            
-        tablero.limpiarFichasMuertas();            
-        fin = finalizaLaPartida();  
-        if(fin == null)
-            nuevoTurno();
-        else
-            vista.mostrarFinal(fin);
+        } else {
+            tablero.moverFicha(this.movimiento);
+            comerFicha(this.movimiento);          
+            hacerDama(this.movimiento);            
+            tablero.limpiarFichasMuertas();            
+            fin = finalizaLaPartida();  
+            if( fin == null )
+                nuevoTurno();
+            else
+                vista.mostrarFinal(fin);
         }
     }
     
     /**
-     * Lee un nuevo movimiento que sea del color del jugador indicado
+     * Comprueba que el movimiento indicado es del color del jugador actual
      * 
      * @param color color que debe tener la ficha que moveremos
-     * @return el movimiento, que debe pertenecer al jugador actual
+     * @return true si el movimiento es del color correcto
+     * false si el movimiento no es del color correcto
      */
-    private boolean leerTurnoMovimiento(Movimiento movimiento, String color) {        
-        if ( ! tablero.fichaDelMismoColor(movimiento.getFilaInicial(), movimiento.getColInicial(), color) ) {
-            consola.imprimirError("Esa ficha no es de tu color");
+    private boolean comprobarColorMovimiento(Movimiento movimiento) {   
+        String color = (turno % 2 == 1) ? Ficha.BLANCA : Ficha.NEGRA;
+        int fila = movimiento.getFilaInicial();
+        int columna = movimiento.getColInicial();
+        if ( ! tablero.fichaDelMismoColor(fila, columna, color) ) {
             vista.cambiarTexto("Esa ficha no es de tu color");
             return false;
         }
@@ -260,21 +252,23 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 texto = "¡Hay un empate!";
                 break;
         }
-        
-        
-        
-//        consola.imprimir("Gana el jugador ");
-//        consola.imprimirLinea( ganador == Reglas.GANADOR_JUGADOR_1 ? 
-//                jugador1.getNombre() : jugador2.getNombre() );
-        
         return texto;
     }
     
-    public void conceder(String t){
-        fin = "Gana el jugador "+t;
+    /**
+     * Termina la partida por rendicion de uno de los jugadores
+     * 
+     * @param nombreGanador el nombre del jugador ganador
+     */
+    public void conceder(String nombreGanador){
+        fin = "Gana el jugador " + nombreGanador;
         vista.mostrarFinal(fin);
     }
 
+    /**
+     * Sobreescribe el actionPerformed que se utilizara para el tablero
+     * @param e evento entrante
+     */
     @Override
     public void actionPerformed(ActionEvent e) {
         
@@ -283,8 +277,6 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 e.getActionCommand().equals("")){
             CasillaSwing c = (CasillaSwing) e.getSource();
             CasillaSwing[][] cs = vista.getTableroSwing().getCasillas();
-            
-           
             
             vista.resaltarCasilla(c.getFila(), c.getColumna());
             if(primeraParteMovimiento == false){
@@ -295,7 +287,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 movimientosValidos();
             }
             else{
-                movimiento = new Movimiento(filaInicial, columnaInicial, c.getFila(), c.getColumna());
+                movimiento = new Movimiento(filaInicial, columnaInicial, 
+                        c.getFila(), c.getColumna());
                 movimientoListo = true;
                 vista.repintarTablero();
                 primeraParteMovimiento = false;
@@ -307,10 +300,16 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
        
     }
     
+    /**
+     * @return el tablero
+     */
     public Tablero getTablero(){
         return tablero;
     }
     
+    /**
+     * @param v la vista
+     */
     public void vista(VistaJuego v){ 
         this.vista = v; 
     }
@@ -337,16 +336,21 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 movimientosValidos = movimientosPeonValidos(fila, columna, colorFicha);
             else
                 movimientosValidos = movimientosDamaValidos(fila, columna, colorFicha);
-         
             
             for (Movimiento m : movimientosValidos) {
                 vista.mostrarMovimientoValido(m.getFilaFinal(), m.getColFinal());
             }
-            
         }
-        
     }
     
+    /**
+     * Metodo auxiliar de movimientosValidos
+     * Calcula los movimientos validos en el caso de mover un peon
+     * @param fila la fila original del peon
+     * @param columna la columna original del peon
+     * @param color el color del peon
+     * @return una lista con todos los movimientos posibles y validos
+     */
     private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>(2);
@@ -371,6 +375,14 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         return movimientosValidos;
     }
     
+    /**
+     * Metodo auxiliar de movimientosValidos
+     * Calcula los movimientos validos en el caso de mover una dama
+     * @param fila la fila original de la dama
+     * @param columna la columna original de la dama
+     * @param color el color de la dama
+     * @return una lista con todos los movimientos posibles y validos
+     */
     private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>();
@@ -386,6 +398,17 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         return movimientosValidos;
     }
     
+    /**
+     * Metodo auxiliar de movimientosDamaValidos
+     * Calcula los movimientos validos para la dama en una diagonal y direccion
+     * @param fila la fila original de la dama
+     * @param columna la columna original de la dama
+     * @param aumentoFila indica la componente de las filas en la direccion
+     * @param aumentoColumna indica la componente de las columnas en la direccion
+     * @param color el color de la dama
+     * @param movimientos la lista de los movimientos posibles donde 
+     *  añadira los que encuentre
+     */
     private void rellenarMovimientosDamaEnDireccion(int fila, int columna, int aumentoFila, int aumentoColumna, String color, ArrayList<Movimiento> movimientos) {
         
         boolean finComprobacion = false;

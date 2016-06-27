@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<info_conexion>
+    <direccion>localhost</direccion>
+    <puerto>10000</puerto>
+</info_conexion>

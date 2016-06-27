@@ -20,8 +20,7 @@ public class Dama extends Ficha {
      * Comprueba si es un movimiento del tipo de ficha dama
      * 
      * @param movimiento movimiento a comprobar
-     * @return 
-     * true si el movimiento es valido
+     * @return true si el movimiento es valido
      */
     @Override
     public boolean mover(Movimiento movimiento){

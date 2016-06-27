@@ -1,7 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Controlador.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas;
 
@@ -9,16 +9,8 @@ import UI.VistaJuego;
 import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import javax.swing.SwingUtilities;
 import reglas.Reglas;
 
-/**
- *
- * @author Zeko
- */
 public class Controlador implements java.awt.event.ActionListener{
     private VistaJuego vista;
     private Partida partida;
@@ -27,15 +19,28 @@ public class Controlador implements java.awt.event.ActionListener{
     
     private Cliente cliente;
     
+    /**
+    * Inicia un nuevo controlador para la interfaz grafica
+    * @param reglas las reglas que se usaran
+    */
     public Controlador(Reglas reglas){
         this.reglas = reglas;
     }
     
+    /**
+     * Inicia un nuevo controlador que contiene una referenca a un cliente
+     * @param reglas las reglas que se usaran
+     * @param cliente el cliente que gestiona la comunicacion con el servidor
+     */
     public Controlador(Reglas reglas, Cliente cliente) {
         this(reglas);
         this.cliente = cliente;
     }
 
+    /**
+    * Sobreescribe en actionPerformed que se usara en la interfaz grafica
+    * @param e el evento entrante
+    */
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getActionCommand().equals("Nueva partida")){
@@ -48,17 +53,13 @@ public class Controlador implements java.awt.event.ActionListener{
             tablero = partida.tablero;
             tablero.addObserver(vista);
             partida.vista(vista);
-            partida.jugar();
-            
-            
-            
+            partida.jugar();           
         }
         else if(e.getActionCommand().equals("Guardar partida")){
             try {
                 if(partida!= null)
                     partida.guardar(partida);
             } catch (IOException ex) {
-                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
                 vista.mostrarError("No se ha podido guardar la partida");
             }
         }
@@ -72,10 +73,8 @@ public class Controlador implements java.awt.event.ActionListener{
                     partida.jugar();
                 }
             } catch (IOException ex) {
-                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
                 vista.mostrarError("No se ha podido cargar la partida");
             } catch (ClassNotFoundException ex) {
-                //Logger.getLogger(Controlador.class.getName()).log(Level.SEVERE, null, ex);
                 vista.mostrarError("No se ha podido cargar la partida");
             } catch (Exception ex){
                 vista.mostrarError("No se ha podido cargar la partida");
@@ -89,6 +88,10 @@ public class Controlador implements java.awt.event.ActionListener{
         }
     }
     
+    /**
+    * Asigna la vista
+    * @param vista la vista
+    */
     public void vista(VistaJuego vista){
         this.vista = vista;
     }
