@@ -1,19 +1,13 @@
 package damas;
 
 import UI.VistaJuego;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import reglas.Reglas;
@@ -25,8 +19,6 @@ public class Cliente {
     private Controlador controlador;
     
     private Socket socket;
-    private BufferedReader entrada;
-    private PrintWriter salida;
     private ObjectInputStream entradaObjetos;
     private ObjectOutputStream salidaObjetos;
     
@@ -39,12 +31,17 @@ public class Cliente {
     
     private String miColor;
     private boolean esMiTurno;
-    private final static String MENSAJE_ES_MI_TURNO = "Jugador %s es tu turno de seleccionar movimiento";
-    private final static String MENSAJE_NO_ES_MI_TURNO = "Esperando al servidor";
+    private final static String MENSAJE_ES_MI_TURNO = 
+            "Jugador %s es tu turno de seleccionar movimiento";
+    private final static String MENSAJE_NO_ES_MI_TURNO = 
+            "Esperando al servidor";
     
+    /**
+     * Crea un nuevo cliente con un reglamento
+     * @param reglamento las reglas que se seguiran en una partida local
+     */
     public Cliente(Reglas reglamento) {
         vista = new VistaJuego("damas");
-        
         controlador = new Controlador(reglamento, this);
         
         vista.addControlador(controlador);
@@ -52,36 +49,36 @@ public class Cliente {
         vista.setCliente(this);
         
         crearConexionServidor();
-        System.out.println("he salido");
         comenzarAEsperarEntrada();
 
     }
     
-    
+    /**
+     * Realiza la conexion con el servidor por sockets, pregunta el nombre 
+     * al usuario y lo envia al servidor para registrarlo
+     */
     private void crearConexionServidor() {
         try {
-            System.out.println("comienzo conexion server");
             socket = new Socket("localhost", 10000);
-            //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-            //entradaObjetos = new ObjectInputStream(socket.getInputStream());
-            //entradaObjetos = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
             
             salidaObjetos = new ObjectOutputStream(socket.getOutputStream());
             salidaObjetos.flush();
             entradaObjetos = new ObjectInputStream(socket.getInputStream());
             
-            System.out.println("termino conexion, voy a preguntar");
             nombreJugador = vista.preguntarNombre();
-            //salida.println(nombreJugador);
             salidaObjetos.writeObject(nombreJugador);
             salidaObjetos.flush();
             
         } catch (IOException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Se ha producido un error con la entrada/salida "
+                    + "al iniciar la conexion con el servidor");
         }
     }
     
+    /**
+     * Comienza el bucle que gestiona la entrada de datos por medio de otro 
+     * thread para evitar bloquearse en la entrada
+     */
     private void comenzarAEsperarEntrada() {
         
         oyenteEntrada = new Thread() {
@@ -90,45 +87,41 @@ public class Cliente {
                 String mensajeEntrada;
                 try {
                   do {
-                       //mensajeEntrada = entrada.readLine();
                        mensajeEntrada = entradaObjetos.readObject().toString();
-System.out.println("el server dice que " + mensajeEntrada);
                        switch ( mensajeEntrada ) {
                            case "Actualizar lista":
-                               System.out.println("me mandan la lista");
                                leerListaActualizada();
                                break;
-                               
                            case "Ganador":
-                               System.out.println("he ganado :)");
                                vista.mostrarFinal("HAS GANADO :D");
                                vista.addControlador(controlador);
                                break;
                            case "Perdedor":
-                               System.out.println("he perdido :(");
                                vista.mostrarFinal("Has perdido, buuuuu!");
                                vista.addControlador(controlador);
                                break;
                            case "Aceptar reto":
-                               //mensajeEntrada = entrada.readLine();
-                               mensajeEntrada = entradaObjetos.readObject().toString();
-                               boolean aceptas = vista.preguntarReto(mensajeEntrada);
-       System.out.println("se acepta?" + aceptas);
-                               if ( aceptas ) {
-                                   //salida.println("Aceptar reto");
+                               mensajeEntrada = 
+                                       entradaObjetos.readObject().toString();
+                               boolean aceptar = 
+                                       vista.preguntarReto(mensajeEntrada);
+                               if ( aceptar ) {
                                    salidaObjetos.writeObject("Aceptar reto");
                                    salidaObjetos.flush();
                                    iniciarPartida(false);
                                }
-                               else 
-                                   salida.println("Cancelar reto");
+                               else {
+                                    salidaObjetos.writeObject(
+                                           MensajesConexion.CANCELAR_RETO);
+                                    salidaObjetos.flush();
+                               }
                                break;
                            case "Reto aceptado":
-                               System.out.println("acepta mi desafio");
                                iniciarPartida(true);
                                break;
                            case "Reto rechazado":
-                               System.out.println("el otro es un cobardeeeeee");
+                               vista.mostrarError("El otro usuario ha "
+                                       + "rechazado el reto");
                                break;
                            case "Salir":
                                mensajeEntrada = null;
@@ -139,113 +132,124 @@ System.out.println("el server dice que " + mensajeEntrada);
                            case "Empieza turno":
                                iniciarTurno();
                                break;
-                           default:
-                               System.out.println("Ai dont anderstand llu");
                        }
                   } while ( mensajeEntrada != null );
                 } catch (IOException ex) {
-                    vista.mostrarError("Error de entrada salida");
+                    vista.mostrarError("Error de entrada/salida en el thread"
+                            + "de lectura");
                 } catch (ClassNotFoundException ex) {
-                    Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+                    vista.mostrarError("Error de clases en el thread de "
+                            + "lectura");
                 }
             }
         };
-
         oyenteEntrada.start();
-        
     }
     
+    /**
+     * Indica al servidor que se quiere actualizar la lista de jugadores
+     */
     public void actualizarListaJugadores() {
         try {
-            System.out.println("actualizare la lista");
             
-            //salida.println("Actualizar lista");
             salidaObjetos.writeObject("Actualizar lista");
             salidaObjetos.flush();
             
-//        String[] jugadores = {"diego", "ezequiel", "jugador1", "pruebasGUI2"};
-//        vista.actualizarListaJugadores(jugadores);
         } catch (IOException ex) {
             Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
         }
-        
     }
     
+    /**
+     * Acualiza la lista de jugadores con los datos actuales del servidor
+     */
     private void leerListaActualizada() {
         ArrayList<String> listaJugadores = new ArrayList<>();
         try {
-            //String mensaje = entrada.readLine();
             String mensaje = entradaObjetos.readObject().toString();
             while ( ! mensaje.equals("OK") ) {
                 listaJugadores.add(mensaje);
-                //mensaje = entrada.readLine();
                 mensaje = entradaObjetos.readObject().toString();
             }
             
         } catch (IOException ex) {
-            vista.mostrarError("Error en la recepcion de datos con el servidor");
+            vista.mostrarError("Error de entrada/salida al leer la lista de usuarios");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Error de clases al leer la lista de usuarios");
         } finally {
             vista.actualizarListaJugadores(listaJugadores);
         }
     }
     
+    /**
+     * Envia al servidor una peticion de reto hacia un jugador
+     * @param nombreRival el nombre del jugador que se quiere retar
+     */
     public void retarJugador(String nombreRival) {
         try {
-            System.out.println("retare a "  + nombreRival);
-            
-            //salida.println("Retar");
-            //salida.println(nombreRival);
-            salidaObjetos.writeObject("Retar");
+            salidaObjetos.writeObject(MensajesConexion.RETAR);
             salidaObjetos.flush();
             salidaObjetos.writeObject(nombreRival);
             salidaObjetos.flush();
         } catch (IOException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Error de entrada/salida al retar a un jugador");
         }
-        
     }
     
+    /**
+     * Cierra la conexion con el servidor
+     */
     public void cerrarCliente() {
         try {
-            //salida.println("Cerrar");
-            salidaObjetos.writeObject("Cerrar");
+            salidaObjetos.writeObject(MensajesConexion.CERRAR);
             salidaObjetos.flush();
             entradaObjetos.close();
             salidaObjetos.close();
             socket.close();
         } catch (IOException ex) {
-            vista.mostrarError("Fallo en la comunicacion con el servidor");
+            vista.mostrarError("Error de entrada/salida al cerrar la conexion");
         }
     }
     
-    private void iniciarPartida(boolean soyJugador1) {
+    /**
+     * Inicia una nueva partida multijugador indicando si se es el jugador
+     * retador o no para iniciar los turnos
+     * @param soyJugadorRetador es true si se es el jugador retador
+     */
+    private void iniciarPartida(boolean soyJugadorRetador) {
         tablero = new Tablero();
-        //tablero.colocarFichas();
-        tablero.colocarFichasParaGanar();
-        miColor = ( soyJugador1 ? Ficha.NEGRA : Ficha.BLANCA );
-        System.out.println("soy el jugador " + nombreJugador + " y me tocan " + miColor + " el bool es " + soyJugador1);
+        tablero.colocarFichas();
+        
+        miColor = ( soyJugadorRetador ? Ficha.NEGRA : Ficha.BLANCA );
         controladorPartida = new ControladorTableroJuego(this, vista);
 
         vista.setUIJuego();
-        vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
+        vista.crearTableroSwing(tablero.getFilaMaxima()+1, 
+                tablero.getColumnaMaxima()+1);
         vista.addControladorDePartida(controladorPartida);
 
         vista.update(tablero, null);
-
-
-        vista.cambiarTexto( ( ! soyJugador1 ?  String.format(MENSAJE_ES_MI_TURNO, "blanco") : MENSAJE_NO_ES_MI_TURNO ) );
+        vista.cambiarTexto(( ! soyJugadorRetador ?  
+                String.format(MENSAJE_ES_MI_TURNO, "blanco") : 
+                MENSAJE_NO_ES_MI_TURNO ) );
         
-        esMiTurno = ! soyJugador1;
+        esMiTurno = ! soyJugadorRetador;
     }
     
-
-    
+    /**
+     * @return el tablero
+     */
     public Tablero getTablero() {
         return tablero;
     }
     
+    /**
+    * Calcula cuales son los movimientos validos a los que puede moverse
+    * la ficha seleccionada y envia la informacion a la vista para marcarlos
+    * en el tablero
+    * @param fila la fila seleccionada
+    * @param columna la columna seleccionada
+    */
     public void movimientosValidos(int fila, int columna) {
         boolean esUnPeon;
         String colorFicha;
@@ -269,6 +273,14 @@ System.out.println("el server dice que " + mensajeEntrada);
         }
     }
     
+    /**
+    * Metodo auxiliar de movimientosValidos
+    * Calcula los movimientos validos en el caso de mover un peon
+    * @param fila la fila original del peon
+    * @param columna la columna original del peon
+    * @param color el color del peon
+    * @return una lista con todos los movimientos posibles y validos
+    */
     private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>(2);
@@ -293,6 +305,14 @@ System.out.println("el server dice que " + mensajeEntrada);
         return movimientosValidos;
     }
     
+    /**
+    * Metodo auxiliar de movimientosValidos
+    * Calcula los movimientos validos en el caso de mover una dama
+    * @param fila la fila original de la dama
+    * @param columna la columna original de la dama
+    * @param color el color de la dama
+    * @return una lista con todos los movimientos posibles y validos
+    */
     private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>();
@@ -308,6 +328,17 @@ System.out.println("el server dice que " + mensajeEntrada);
         return movimientosValidos;
     }
     
+    /**
+    * Metodo auxiliar de movimientosDamaValidos
+    * Calcula los movimientos validos para la dama en una diagonal y direccion
+    * @param fila la fila original de la dama
+    * @param columna la columna original de la dama
+    * @param aumentoFila indica la componente de las filas en la direccion
+    * @param aumentoColumna indica la componente de las columnas en la direccion
+    * @param color el color de la dama
+    * @param movimientos la lista de los movimientos posibles donde
+    * añadira los que encuentre
+    */
     private void rellenarMovimientosDamaEnDireccion(int fila, int columna, int aumentoFila, int aumentoColumna, String color, ArrayList<Movimiento> movimientos) {
         
         boolean finComprobacion = false;
@@ -333,29 +364,41 @@ System.out.println("el server dice que " + mensajeEntrada);
         
     }
     
+    /**
+     * Termina el turno y envia el movimiento al servidor
+     * @param movimiento el movimiento seleccionado
+     */
     public void terminarTurno(Movimiento movimiento) {
         if ( ! esMiTurno )
             return;
         try {
-            System.out.println("mando al servidor el movimiento " + movimiento.toString());
             salidaObjetos.writeObject("Movimiento");
+            salidaObjetos.flush();
             salidaObjetos.writeObject(movimiento);
+            salidaObjetos.flush();
         } catch (IOException ex) {
-            Logger.getLogger(Cliente.class.getName()).log(Level.SEVERE, null, ex);
+            vista.mostrarError("Error de entrada/salida al enviar movimiento");
         }
-        
     }
     
+    /**
+     * Indica al servidor que te rindes
+     */
     public void rendirse() {
-        // sin implementar
-        // conceder( (turno % 2 == 1) ? jugador2.getNombre() : jugador1.getNombre() );
+        try {
+            salidaObjetos.writeObject(MensajesConexion.RENDICION);
+            salidaObjetos.flush();
+        } catch (IOException ex) {
+            vista.mostrarError("Error de entrada/salida al rendirse");
+        }
     }
     
+    /**
+     * Actualiza el tablero con los datos obtenidos del servidor
+     */
     public void actualizaTablero() {
-        System.out.println("leere el tablero");
         try {
             tablero = (Tablero) entradaObjetos.readObject();
-            System.out.println("tengo el tablero nuevo " + tablero.toString());
             vista.update(tablero, null);
             vista.cambiarTexto(MENSAJE_NO_ES_MI_TURNO);
         } catch (IOException ex) {
@@ -365,11 +408,14 @@ System.out.println("el server dice que " + mensajeEntrada);
         }
     }
     
+    /**
+     * Comienza un nuevo turno
+     */
     private void iniciarTurno() {
-        String mensaje = String.format(MENSAJE_ES_MI_TURNO, (miColor.equals(Ficha.BLANCA)? "blanco":"negro"));
+        String mensaje = String.format(MENSAJE_ES_MI_TURNO, 
+                (miColor.equals(Ficha.BLANCA) ? "blanco" : "negro"));
         vista.cambiarTexto(mensaje);
         esMiTurno = true;
-        
     }
     
 }

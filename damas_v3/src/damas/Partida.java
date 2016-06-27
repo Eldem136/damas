@@ -315,6 +315,11 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         this.vista = v; 
     }
 
+    /**
+    * Calcula cuales son los movimientos validos a los que puede moverse
+    * la ficha seleccionada y envia la informacion a la vista para marcarlos
+    * en el tablero
+    */
     private void movimientosValidos(){
         int fila = movimiento.getFilaInicial();
         int columna = movimiento.getColInicial();
