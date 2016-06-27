@@ -1,23 +1,19 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Movimiento.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas_v3_server;
 
 import damas.Jugador;
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -26,10 +22,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import reglas.Reglas;
 
-/**
- *
- * @author Zeko
- */
+
 public class Servidor{
     
     ServerSocket serverSocket;
@@ -51,12 +44,21 @@ public class Servidor{
     private ExecutorService poolPartidas;
     private final static int MAXIMO_CONEXIONES = 20;
     
-    private final static String QUERY_BUSCAR_JUGADOR = "SELECT * FROM `648391`.jugador WHERE nombre = '%s'";
-    private final static String QUERY_JUGADOR_INSERTAR_NUEVO = "INSERT INTO jugador VALUES('%s', 0)";
-    private final static String QUERY_JUGADOR_UPDATE_GANADOR = "UPDATE `648391`.jugador SET partidas_ganadas = partidas_ganadas + 1 WHERE nombre = '%s'";
+    //Strings de Querys para la base de datos.
+    private final static String QUERY_BUSCAR_JUGADOR =
+            "SELECT * FROM `648391`.jugador WHERE nombre = '%s'";
+    private final static String QUERY_JUGADOR_INSERTAR_NUEVO = 
+            "INSERT INTO jugador VALUES('%s', 0)";
+    private final static String QUERY_JUGADOR_UPDATE_GANADOR = 
+            "UPDATE `648391`.jugador SET partidas_ganadas = partidas_ganadas "
+            + "+ 1 WHERE nombre = '%s'";
     
     private Reglas reglamento;
     
+    /**
+     * Constructor de la clase Servidor. Una vez creado, se conectará a la
+     * base de datos y creará un ThreadPool de partidas.
+     */
     private Servidor(){
         
         try {
@@ -72,40 +74,36 @@ public class Servidor{
         
     }
     
+    /**
+     * Singleton para el servidor.
+     * @return objeto de tipo servidor único.
+     */
     public static synchronized Servidor instancia(){
         if (instancia == null){
             instancia = new Servidor();
         }
         return instancia;
     }
-    
-//    public void esperarClientes(){
-//        System.out.println("Servidor esperando clientes...");
-//        ExecutorService poolThreads = Executors.newFixedThreadPool(MAXIMO_CONEXIONES);
-//        while(true){
-//            try {
-//                socket = serverSocket.accept();
-//                
-//                poolThreads.execute(new HiloOyente(socket));
-//       
-//            } catch (IOException ex) {
-//                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-//            }
-//        }   
-//    }
-    
+
+    /**
+     * Bucle de espera de sockets clientes desde el ServerSocket.
+     * Cada vez que llega un cliente nuevo, se crea un HiloOyenteThread que 
+     * gestionará la comunicación con ese cliente.
+     */
     public void esperarClientes () {
         System.out.println("Servidor esperando clientes...");
         
         while(true){
             try {
                 socket = serverSocket.accept();
-                //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                //String nombreCliente = entrada.readLine();
-                System.out.println("nuevo cliente entra. socket closed? "+socket.isClosed());
+                System.out.println("nuevo cliente entra.");
                 HiloOyenteThread nuevaConexion = new HiloOyenteThread(socket);
-                ListaConexionesClientes.put(nuevaConexion.getNombreCliente(), nuevaConexion);
-                usuariosConectadosDisponibles.add(nuevaConexion.getNombreCliente());
+                
+                ListaConexionesClientes.put(nuevaConexion.getNombreCliente(),
+                        nuevaConexion);
+                usuariosConectadosDisponibles.add(
+                        nuevaConexion.getNombreCliente());
+                
                 nuevaConexion.start();
             } catch (IOException ex) {
                 Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
@@ -113,6 +111,9 @@ public class Servidor{
         }
     }
     
+    /**
+     * Método para conectar el servidor a la base de datos MySql.
+     */
     private void conectarABaseDatos(){
         
         try {
@@ -121,28 +122,47 @@ public class Servidor{
             
             //si la base de datos esta vacia, se crea una tabla jugador.
             statement = conexion.createStatement();
-            statement.execute("CREATE TABLE IF NOT EXISTS jugador (nombre varchar(16) PRIMARY KEY, partidas_ganadas INTEGER)");
+            statement.execute("CREATE TABLE IF NOT EXISTS jugador"
+               + " (nombre varchar(16) PRIMARY KEY, partidas_ganadas INTEGER)");
             statement.close();
             
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Servidor.class.getName())
+                    .log(Level.SEVERE, null, ex);
         } catch (SQLException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Servidor.class.getName())
+                    .log(Level.SEVERE, null, ex);
         }
     }
     
+    /**
+     * Método que aumentará el número de partidas ganadas de un jugador
+     * en la base de datos, dado su nombre.
+     * @param nombre
+     * @return true si se actualiza la base de datos correctamente, false en 
+     * caso contrario.
+     */
     public synchronized boolean aumentarPartidasGanadasJugador(String nombre){
         try {
             statement = conexion.createStatement();
             
-            statement.executeUpdate(String.format(QUERY_JUGADOR_UPDATE_GANADOR, nombre));
+            statement.executeUpdate(String.format
+                      (QUERY_JUGADOR_UPDATE_GANADOR, nombre));
             statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Servidor.class.getName())
+                    .log(Level.SEVERE, null, ex);
             return false;
         }
         return true;
     }
+    
+    /**
+     * Método para insertar un jugador en la base de datos con su nombre.
+     * @param nombre
+     * @return true si la inserción se realiza correctamente, false
+     * en caso contrario.
+     */
     public synchronized boolean insertarJugadorEnBD(String nombre){
         try {
             statement = conexion.createStatement();
@@ -150,7 +170,6 @@ public class Servidor{
             
             if(!resultset.first()){
                 statement.execute(String.format(QUERY_JUGADOR_INSERTAR_NUEVO, nombre));
-                System.out.println("metoa " + nombre);
             }
 
             statement.close();
@@ -161,15 +180,30 @@ public class Servidor{
         return true;
     }
     
+    /**
+     * 
+     * @return La lista de usuarios conectados disponibles.
+     */
     public Set<String> listaJugadores() {
-        //return ListaConexionesClientes.keySet();
         return usuariosConectadosDisponibles;
     }
     
+    /**
+     * Elimina un jugador de la Lista de jugadores disponibles.
+     * @param nombreJugador 
+     */
     public void adiosJugador(String nombreJugador) {
         ListaConexionesClientes.remove(nombreJugador);
     }
     
+    /**
+     * Método para hacer efectivo el reto de un jugador hacia otro, es decir,
+     * la invitación a jugar, en caso de realizarse, se elimina a ambos juga-
+     * dores de la lista de disponibles y se inicia un nuevo Thread de Partida
+     * dentro del ThreadPool de partidas.
+     * @param retador -- jugador que envía el reto.
+     * @param retado  -- jugador que es retado.
+     */
     public void enviarReto(String retador, String retado) {
         HiloOyenteThread threadJugador1 = (HiloOyenteThread) ListaConexionesClientes.get(retador);
         HiloOyenteThread threadJugador2 = (HiloOyenteThread) ListaConexionesClientes.get(retado);
@@ -178,17 +212,32 @@ public class Servidor{
         poolPartidas.execute(new HiloPartida(threadJugador1, threadJugador2, reglamento));
     }
     
+    /**
+     * Método para hacer set de las reglas de juego en el servidor.
+     * @param reglas 
+     */
     public void setReglas(Reglas reglas) {
         this.reglamento = reglas;
     }
     
+    /**
+     * Método para añadir un cliente a la lista de conexiones de clientes,
+     * guardando el Thread Oyente que está gestionando la conexión con el 
+     * mismo.
+     * @param nombre
+     * @param thread 
+     */
     public void addCliente(String nombre, HiloCliente thread) {
         ListaConexionesClientes.put(nombre, (HiloOyenteThread)thread);
     }
     
+    /**
+     * Añade un usuario disponible a la lista de objetos no repetidos 
+     * usuariosConectadosDisponibles.
+     * @param nombre 
+     */
     public void addUsuarioDisponible(String nombre) {
         usuariosConectadosDisponibles.add(nombre);
     }
-    
     
 }

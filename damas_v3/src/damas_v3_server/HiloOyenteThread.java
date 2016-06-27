@@ -1,20 +1,15 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Movimiento.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas_v3_server;
 
+import damas.MensajesConexion;
 import damas.Tablero;
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
@@ -24,12 +19,10 @@ import java.util.logging.Logger;
 import utilidades.Movimiento;
 
 /**
- *
- * @author Zeko
+ *Clase que se encargará de gestionar la conexión con los clientes individual-
+ * mente.
  */
 public class HiloOyenteThread extends Thread implements HiloCliente{
-    private BufferedReader entrada;
-    private PrintWriter salida;
     private Socket socket;
     private ObjectInputStream entradaObjetos;
     private ObjectOutputStream salidaObjetos;
@@ -44,11 +37,7 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
         mensajesParaPartida = new LinkedList<>();
         
-        try {
-            
-            //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-            
+        try {            
             salidaObjetos = new ObjectOutputStream(socket.getOutputStream());
             salidaObjetos.flush();
             entradaObjetos = new ObjectInputStream(socket.getInputStream());
@@ -63,17 +52,11 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
         mensajesParaPartida = new LinkedList<>();
         
-        try {
-            
-            //entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            //salida = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-            
+        try {      
             salidaObjetos = new ObjectOutputStream(socket.getOutputStream());
             salidaObjetos.flush();
             entradaObjetos = new ObjectInputStream(socket.getInputStream());
-            
             nombreCliente = entradaObjetos.readObject().toString();
-            
         } catch (IOException ex) {
             Logger.getLogger(HiloOyente.class.getName()).log(Level.SEVERE, null, ex);
         } catch (ClassNotFoundException ex) {
@@ -100,60 +83,53 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
     }
     
+    /**
+     * Método que inserta jugadores en la base de datos del servidor.
+     */
     private void insertarClienteEnBD(){
         Servidor.instancia().insertarJugadorEnBD(nombreCliente);
     }
     
+    /**
+     * Método que en bucle leerá las órdenes del cliente conectado al 
+     * hiloOyente y que actuará en consecuencia dependiendo de la órdenes.
+     * @throws IOException 
+     */
     private void leerOrdenes() throws IOException{
-        System.out.println("leyendo ordenes");
         boolean fin = false;
         String lectura;
         do{
             try {
-                //lectura = entrada.readLine();
                 lectura = entradaObjetos.readObject().toString();
-                System.out.println("he leido: "+lectura);
                 switch(lectura){
-                    case "Movimiento":
-                        //lectura = entrada.readLine();
-                        //lectura = entradaObjetos.readObject().toString();
+                    case MensajesConexion.MOVIMIENTO:
                         Movimiento movimientoLeido = (Movimiento) entradaObjetos.readObject();
-                        System.out.println("pasa: "+movimientoLeido.toString());
                         ejecutarMovimiento(movimientoLeido);
                         break;
-                    case "rendicion":
-                        System.out.println("ha ganado el que no se ha rendido");
-                        fin = true;
+                    case MensajesConexion.RENDICION:
+                        rendicion();
                         break;
-                    case "Cerrar":
-                        System.out.println("se nos va nuestro mejor cliente");
-                        //salida.println("Salir");
-                        salidaObjetos.writeObject("Salir");
+                    case MensajesConexion.CERRAR:
+                        salidaObjetos.writeObject(MensajesConexion.SALIR);
                         salidaObjetos.flush();
                         fin = true;
                         break;
-                    case "Actualizar lista":
-                        System.out.println("mandando lista actualizada");
+                    case MensajesConexion.ACTUALIZAR_LISTA_USUARIOS:
                         leerConectados();
                         break;
-                    case "Retar":
-                        System.out.print("me llega un reto a ");
-                        //String rival = entrada.readLine();
+                    case MensajesConexion.RETAR:
                         String rival = entradaObjetos.readObject().toString();
                         System.out.println(rival);
                         Servidor.instancia().enviarReto(nombreCliente, rival);
                         break;
-                    case "Ganador":
-                        aumentarVictoria();
-                        break;
-                    case "Aceptar reto":
+                    case MensajesConexion.ACEPTAR_RETO:
                         respuestaReto(lectura);
                         break;
-                    case "Cancelar reto":
+                    case MensajesConexion.CANCELAR_RETO:
                         respuestaReto(lectura);
                         break;
                     default:
-                        System.out.println("Ai dont anderstand llu");
+                        System.err.println("Orden no reconocida: "+lectura);
                         break;
                 }
             } catch (ClassNotFoundException ex) {
@@ -163,54 +139,55 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         Servidor.instancia().adiosJugador(nombreCliente);
     }
     
+    /**
+     * Recibe como argumento el movimiento del jugador y lo coloca en la 
+     * cola de mensajes para la partida y avisa a ésta de que se ha 
+     * recibido el movimiento.
+     * @param movimiento 
+     */
     private void ejecutarMovimiento(Movimiento movimiento) {
         
-            //String[] leido = lectura.split(" ");
-            //System.out.println("long: "+leido.length);
-            //salida.println("muevo a ");
-            
-//        mensajesParaPartida.offer(Integer.toString(movimiento.getFilaInicial()));
-//        mensajesParaPartida.offer(Integer.toString(movimiento.getColInicial()));
-//        mensajesParaPartida.offer(Integer.toString(movimiento.getFilaFinal()));
-//        mensajesParaPartida.offer(Integer.toString(movimiento.getColFinal()));
-        mensajesParaPartida.offer(movimiento.getFilaInicial()+" "+movimiento.getColInicial()+" "+movimiento.getFilaFinal()+" "+movimiento.getColFinal());
+        mensajesParaPartida.offer(movimiento.getFilaInicial()+
+                " "+movimiento.getColInicial()+
+                " "+movimiento.getFilaFinal()+
+                " "+movimiento.getColFinal());
 
         synchronized(partida) {
             partida.notify();
         }
     }
     
+    /**
+     * Actualiza la lista de jugadores conectados del servidor.
+     * @throws IOException 
+     */
     private void leerConectados() throws IOException {
-        //salida.println("Actualizar lista");
-        salidaObjetos.writeObject("Actualizar lista");
+        salidaObjetos.writeObject(MensajesConexion.ACTUALIZAR_LISTA_USUARIOS);
         salidaObjetos.flush();
         Set<String> jugadoresConectados = Servidor.instancia().listaJugadores();
         for (String jugador : jugadoresConectados) {
             if ( ! jugador.equals(nombreCliente) ) {
-                //salida.println(jugador);
                 salidaObjetos.writeObject(jugador);
                 salidaObjetos.flush();
         
             }
         }
-        //salida.println("OK");
         salidaObjetos.writeObject("OK");
         salidaObjetos.flush();
         
-    }
-    
-    private void aumentarVictoria() {
-        Servidor.instancia().aumentarPartidasGanadasJugador(nombreCliente);
     }
     
     public Socket getSocket() {
         return socket;
     }
     
+    /**
+     * Envía el mensaje pasado como argumento al cliente.
+     * @param mensaje 
+     */
     @Override
     public void enviaMensaje(String mensaje) {
         try {
-            //salida.println(mensaje);
             salidaObjetos.writeObject(mensaje);
             salidaObjetos.flush();
         } catch (IOException ex) {
@@ -219,21 +196,37 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
     }
 
+    /**
+     * @return el nombre del cliente.
+     */
     @Override
     public String getNombreCliente() {
         return nombreCliente;
     }
 
+    /**
+     * Setea la partida del Thread oyente para tener en él una referencia al
+     * hilo que gestiona la partida.
+     * @param hiloPartida 
+     */
     @Override
-    public void esperoMensajes(HiloPartida hiloPartida) {
+    public void setOyentePartida(HiloPartida hiloPartida) {
         partida = hiloPartida;
     }
 
+    /**
+     * @return el primer mensaje de la cola mensajesParaPartida.
+     */
     @Override
     public String leerMensaje() {
         return mensajesParaPartida.poll();
     }
     
+    /**
+     * Coloca en la cola de mensajes de la partida la respuesta a un reto en 
+     * el caso del jugador retado.
+     * @param respuesta 
+     */
     private synchronized void respuestaReto(String respuesta) {
         mensajesParaPartida.offer(respuesta);
         synchronized(partida) {
@@ -241,13 +234,15 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         }
     }
 
+    /**
+     * Envía el tablero al jugador.
+     * @param tablero 
+     */
     @Override
     public void enviarTableto(Tablero tablero) {
         try {
-            //salida.println("Fin turno");
-            salidaObjetos.writeObject("Fin turno");
+            salidaObjetos.writeObject(MensajesConexion.FIN_TURNO);
             salidaObjetos.flush();
-            System.out.println("Thread: enviare el tablero" + tablero.toString());
             salidaObjetos.reset();
             salidaObjetos.writeObject(tablero);
             salidaObjetos.flush();
@@ -256,10 +251,15 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         }
     }
 
+    /**
+     * Gestiona la victoria del jugador, aumentando sus victorias en la base 
+     * de datos y devolviendolo a la lista de jugadores disponibles ahora que 
+     * no está jugando.
+     */
     @Override
     public void haGanado() {
         try {
-            salidaObjetos.writeObject("Ganador");
+            salidaObjetos.writeObject(MensajesConexion.GANADOR);
             Servidor.instancia().aumentarPartidasGanadasJugador(nombreCliente);
             Servidor.instancia().addUsuarioDisponible(nombreCliente);
         } catch (IOException ex) {
@@ -268,18 +268,26 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
     }
 
+    /**
+     * Gestiona la derrota del jugador, devolviendolo a la lista de jugadores
+     * disponibles ahora que no está jugando.
+     */
     @Override
     public void haPerdido() {
         try {
-            salidaObjetos.writeObject("Perdedor");
+            salidaObjetos.writeObject(MensajesConexion.PERDEDOR);
             Servidor.instancia().addUsuarioDisponible(nombreCliente);
         } catch (IOException ex) {
             Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
-    
-    
-    
+    private void  rendicion(){
+        mensajesParaPartida.offer(MensajesConexion.RENDICION);
+        
+        synchronized(partida){
+            partida.notify();
+        }
+    }
     
 }
