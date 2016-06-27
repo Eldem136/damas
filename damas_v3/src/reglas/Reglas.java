@@ -54,7 +54,8 @@ public interface Reglas {
      * @param movimiento movimiento realizado
      * @param tablero tablero donde se ejecuta el movimiento
      * @return 
-     * un array de dimension 2 con la fila en el tablero de la ficha comida en la posicion 0 
+     * un array de dimension 2 con la fila en el tablero de la ficha comida en la 
+     * posicion 0 
      *  y la columna en la posicion 1
      * Reglas.COORDENADAS_NO_COMER en el caso de que no se "come" ninguna ficha
      */
