@@ -1,7 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+/**
+ * Movimiento.java
+ * @author Ezequiel Barbudo     (zeko3991@gmail.com)
+ * @author Diego Malo           (d.malo136@gmail.com)
  */
 package damas_v3_server;
 
@@ -14,10 +14,6 @@ import java.net.Socket;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Zeko
- */
 public class HiloOyente implements Runnable {
     BufferedReader entrada;
     PrintWriter salida;
@@ -61,10 +57,5 @@ public class HiloOyente implements Runnable {
     private void insertarClienteEnBD(){
         Servidor.instancia().insertarJugadorEnBD(nombreCliente);
     }
-    
-    
-    
-    
-    
     
 }
