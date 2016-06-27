@@ -1,5 +1,5 @@
 /**
- * damas.java
+ * Dama.java
  * @author Ezequiel Barbudo     (zeko3991@gmail.com)
  * @author Diego Malo           (d.malo136@gmail.com)
  */
