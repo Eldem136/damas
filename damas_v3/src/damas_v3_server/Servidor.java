@@ -194,6 +194,7 @@ public class Servidor{
      */
     public void adiosJugador(String nombreJugador) {
         ListaConexionesClientes.remove(nombreJugador);
+        usuariosConectadosDisponibles.remove(nombreJugador);
     }
     
     /**

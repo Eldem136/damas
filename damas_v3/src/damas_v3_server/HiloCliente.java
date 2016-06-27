@@ -8,6 +8,7 @@ package damas_v3_server;
 import damas.Tablero;
 
 public interface HiloCliente{
+    
     public void enviaMensaje(String mensaje);
     public void setOyentePartida(HiloPartida hiloPartida);
     public String leerMensaje();

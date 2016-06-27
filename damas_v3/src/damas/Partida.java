@@ -73,7 +73,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * Inicia el tablero grafico realizado usando Java Swing
      */
     public void iniciarTableroSwing(){
-        vista.crearTableroSwing(tablero.getFilaMaxima()+1, tablero.getColumnaMaxima()+1);
+        vista.crearTableroSwing(tablero.getFilaMaxima()+1, 
+                tablero.getColumnaMaxima()+1);
     }
     
     /**
@@ -105,10 +106,11 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * 
      * @param partida
      * @return la partida que ha sido cargada
-     * @throws IOException 
-     * @throws ClassNotFoundException 
+     * @throws IOException si se produce error de entrada/salida con el lector
+     * @throws ClassNotFoundException si el archivo contiene otra cosa
      */
-    public static Partida cargar(File partida) throws IOException, ClassNotFoundException{
+    public static Partida cargar(File partida) throws IOException, 
+            ClassNotFoundException{
         ObjectInputStream in = new ObjectInputStream(
             new FileInputStream(partida));
         Partida p1 = (Partida) in.readObject();
@@ -229,7 +231,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
     }
     
     /**
-     * comprobamos si finaliza la partida, en el casi de que si indicamos de ello por la consola asignada
+     * comprobamos si finaliza la partida, en el casi de que si indicamos de 
+     * ello por la consola asignada
      * 
      * @return 
      * true si la partida finaliza
@@ -295,7 +298,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
                 terminarTurno();
             }  
         } else if(e.getActionCommand().equals("Rendirse")){
-            conceder( (turno % 2 == 1) ? jugador2.getNombre() : jugador1.getNombre() );
+            conceder( (turno % 2 == 1) ? jugador2.getNombre() : 
+                    jugador1.getNombre() );
         }
        
     }
@@ -333,9 +337,9 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
             if ( ! colorFicha.equals( (turno%2 == 1) ? Ficha.BLANCA : Ficha.NEGRA ) )
                 return;
             else if ( esUnPeon )
-                movimientosValidos = movimientosPeonValidos(fila, columna, colorFicha);
+              movimientosValidos = movimientosPeonValidos(fila, columna, colorFicha);
             else
-                movimientosValidos = movimientosDamaValidos(fila, columna, colorFicha);
+              movimientosValidos = movimientosDamaValidos(fila, columna, colorFicha);
             
             for (Movimiento m : movimientosValidos) {
                 vista.mostrarMovimientoValido(m.getFilaFinal(), m.getColFinal());
@@ -351,7 +355,8 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @param color el color del peon
      * @return una lista con todos los movimientos posibles y validos
      */
-    private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, String color) {
+    private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, 
+            String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>(2);
         
@@ -359,19 +364,32 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
             return movimientosValidos;
         
         int avanceFila = ( color.equals(Ficha.BLANCA) ? -1 : 1 );
-        
-        if ( tablero.estaLaCasillaVacia(fila + avanceFila, columna - 1) )
-            movimientosValidos.add(new Movimiento(fila, columna, fila + avanceFila, columna - 1));
-        else if ( ! tablero.fichaDelMismoColor(fila + avanceFila, columna - 1, color) )
-            if ( tablero.estaLaCasillaVacia(fila + ( 2 * avanceFila ), columna - 2) )
-                movimientosValidos.add(new Movimiento(fila, columna, fila + (2 * avanceFila), columna - 2));
-        
-        if ( tablero.estaLaCasillaVacia(fila + avanceFila, columna + 1) )
-            movimientosValidos.add(new Movimiento(fila, columna, fila + avanceFila, columna + 1));
-        else if ( ! tablero.fichaDelMismoColor(fila + avanceFila, columna + 1, color) )
-            if ( tablero.estaLaCasillaVacia(fila + ( 2 * avanceFila ), columna + 2) )
-                movimientosValidos.add(new Movimiento(fila, columna, fila + (2 * avanceFila), columna + 2));
-        
+        int filaFinal = fila + avanceFila;
+        int columnaFinal = columna - 1;
+        if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) ) {
+            movimientosValidos.add(
+                    new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        else if ( ! tablero.fichaDelMismoColor(filaFinal, columnaFinal, color)) {
+            filaFinal += avanceFila;
+            columnaFinal--;
+            if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
+                movimientosValidos.add(
+                        new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        filaFinal = fila + avanceFila;
+        columnaFinal = columna + 1;
+        if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) ) {
+            movimientosValidos.add(
+                    new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        else if ( ! tablero.fichaDelMismoColor(filaFinal, columnaFinal, color)) {
+            filaFinal += avanceFila;
+            columnaFinal++;
+            if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
+                movimientosValidos.add(
+                        new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }      
         return movimientosValidos;
     }
     
@@ -383,17 +401,22 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @param color el color de la dama
      * @return una lista con todos los movimientos posibles y validos
      */
-    private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, String color) {
+    private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, 
+            String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>();
         
         if ( color.equals(Ficha.VACIA) )
             return movimientosValidos;
         
-        rellenarMovimientosDamaEnDireccion(fila, columna, 1, 1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, 1, -1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, -1, 1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, -1, -1, color, movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, 1, 1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, 1, -1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, -1, 1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, -1, -1, color, 
+                movimientosValidos);
         
         return movimientosValidos;
     }
@@ -409,7 +432,9 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
      * @param movimientos la lista de los movimientos posibles donde 
      *  añadira los que encuentre
      */
-    private void rellenarMovimientosDamaEnDireccion(int fila, int columna, int aumentoFila, int aumentoColumna, String color, ArrayList<Movimiento> movimientos) {
+    private void rellenarMovimientosDamaEnDireccion(int fila, int columna, 
+            int aumentoFila, int aumentoColumna, String color, 
+            ArrayList<Movimiento> movimientos) {
         
         boolean finComprobacion = false;
         boolean fichaComida = false;
@@ -420,8 +445,10 @@ public class Partida  implements Serializable, java.awt.event.ActionListener{
         while ( ! finComprobacion  )  {
             
             if ( tablero.estaLaCasillaVacia(filaInvestigada, columnaInvestigada) )
-                movimientos.add(new Movimiento(fila, columna, filaInvestigada, columnaInvestigada));
-            else if ( ! tablero.fichaDelMismoColor(filaInvestigada, columnaInvestigada, color) 
+                movimientos.add(new Movimiento(fila, columna, filaInvestigada, 
+                        columnaInvestigada));
+            else if ( ! tablero.fichaDelMismoColor
+                        (filaInvestigada, columnaInvestigada, color) 
                     && ! fichaComida)
                 fichaComida = true;
             else

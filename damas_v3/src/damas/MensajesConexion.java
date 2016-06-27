@@ -18,7 +18,6 @@ public class MensajesConexion {
     public final static String CANCELAR_RETO = "cancelar_reto";
     public final static String RETO_ACEPTADO = "reto_aceptado";
     public final static String RETO_RECHAZADO = "reto_rechazado";
-    public final static String SALIR = "salir";
     public final static String FIN_TURNO = "fin_turno";
     public final static String EMPIEZA_TURNO = "empieza_turno";
     public final static String MOVIMIENTO = "movimiento";

@@ -58,7 +58,9 @@ public class ControladorTableroJuego implements ActionListener {
                     cliente.movimientosValidos(filaInicial, columnaInicial);
                 }
                 else{
-                    movimiento = new Movimiento(filaInicial, columnaInicial, c.getFila(), c.getColumna()); 
+                    movimiento = 
+                            new Movimiento(filaInicial, columnaInicial, 
+                                    c.getFila(), c.getColumna()); 
                     vista.repintarTablero();
                     primeraParteMovimientoRealizada = false;
                     cliente.terminarTurno(movimiento);

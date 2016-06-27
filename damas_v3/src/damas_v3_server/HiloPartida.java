@@ -60,8 +60,11 @@ public class HiloPartida implements Runnable{
             if ( respuesta.equals(MensajesConexion.ACEPTAR_RETO) ) {
                 jugador1.enviaMensaje(MensajesConexion.RETO_ACEPTADO);
                 iniciarPartida();
-            } else
+            } else {
                 jugador1.enviaMensaje(MensajesConexion.RETO_RECHAZADO);
+                Servidor.instancia().addUsuarioDisponible(jugador1.getNombreCliente());
+                Servidor.instancia().addUsuarioDisponible(jugador2.getNombreCliente());
+            }
             
         } catch (InterruptedException ex) {
             Logger.getLogger(HiloPartida.class.getName())

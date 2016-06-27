@@ -14,8 +14,6 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import utilidades.Movimiento;
 
 /**
@@ -42,7 +40,8 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
             salidaObjetos.flush();
             entradaObjetos = new ObjectInputStream(socket.getInputStream());
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyente.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida en constructor");
         }
         
     }
@@ -58,9 +57,11 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
             entradaObjetos = new ObjectInputStream(socket.getInputStream());
             nombreCliente = entradaObjetos.readObject().toString();
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyente.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida en constructor");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de clase en constructor");
         }
     }
     
@@ -71,13 +72,13 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
     @Override
     public void run() {
         try {
-            //leer nombre del jugador
             insertarClienteEnBD();
             
             leerOrdenes();
             
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyente.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida en el run");
         }
         
         
@@ -103,14 +104,15 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
                 lectura = entradaObjetos.readObject().toString();
                 switch(lectura){
                     case MensajesConexion.MOVIMIENTO:
-                        Movimiento movimientoLeido = (Movimiento) entradaObjetos.readObject();
+                        Movimiento movimientoLeido = 
+                                (Movimiento) entradaObjetos.readObject();
                         ejecutarMovimiento(movimientoLeido);
                         break;
                     case MensajesConexion.RENDICION:
                         rendicion();
                         break;
                     case MensajesConexion.CERRAR:
-                        salidaObjetos.writeObject(MensajesConexion.SALIR);
+                        salidaObjetos.writeObject(MensajesConexion.CERRAR);
                         salidaObjetos.flush();
                         fin = true;
                         break;
@@ -133,7 +135,8 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
                         break;
                 }
             } catch (ClassNotFoundException ex) {
-                Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+                System.err.println("Error HiloOyenteThread del cliente: " + 
+                      nombreCliente + "\n\tError de clase en la lectura de ordenes");
             }
         }while(!fin);
         Servidor.instancia().adiosJugador(nombreCliente);
@@ -172,7 +175,7 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
         
             }
         }
-        salidaObjetos.writeObject("OK");
+        salidaObjetos.writeObject(MensajesConexion.OK);
         salidaObjetos.flush();
         
     }
@@ -191,7 +194,8 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
             salidaObjetos.writeObject(mensaje);
             salidaObjetos.flush();
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida al enviar un mensaje");
         }
         
     }
@@ -247,7 +251,8 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
             salidaObjetos.writeObject(tablero);
             salidaObjetos.flush();
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida al enviar el tablero");
         }
     }
 
@@ -260,10 +265,12 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
     public void haGanado() {
         try {
             salidaObjetos.writeObject(MensajesConexion.GANADOR);
+            salidaObjetos.flush();
             Servidor.instancia().aumentarPartidasGanadasJugador(nombreCliente);
             Servidor.instancia().addUsuarioDisponible(nombreCliente);
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida al enviar la victoria");
         }
         
     }
@@ -276,9 +283,11 @@ public class HiloOyenteThread extends Thread implements HiloCliente{
     public void haPerdido() {
         try {
             salidaObjetos.writeObject(MensajesConexion.PERDEDOR);
+            salidaObjetos.flush();
             Servidor.instancia().addUsuarioDisponible(nombreCliente);
         } catch (IOException ex) {
-            Logger.getLogger(HiloOyenteThread.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error HiloOyenteThread del cliente: " + nombreCliente
+                    + "\n\tError de entrada/salida al enviar la derrota");
         }
     }
     

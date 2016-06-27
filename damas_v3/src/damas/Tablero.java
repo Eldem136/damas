@@ -45,8 +45,10 @@ public class Tablero extends java.util.Observable implements Serializable {
     
     /**
      * Coloca las fichas para un juego de damas.
-     * Coloca en las tres filas superiores las fichas del jugador 2 que seran de color negro
-     * Coloca en las tres filas inferiores las fichas del jugador 1 que seran de color blanco
+     * Coloca en las tres filas superiores las fichas del jugador 2 que seran 
+     * de color negro
+     * Coloca en las tres filas inferiores las fichas del jugador 1 que seran 
+     * de color blanco
      */
     public void colocarFichas(){
         int x; //filas
@@ -129,7 +131,8 @@ public class Tablero extends java.util.Observable implements Serializable {
      * @param columna la columna
      * @return 
      * la ficha si las fichas estan dentro de las coordenadas del tablero
-     * null si las coordenadas indicadas no corresponden a una posicion dentro del tablero
+     * null si las coordenadas indicadas no corresponden a una posicion dentro 
+     * del tablero
      */
     public Ficha getFicha(int fila, int columna){
         if ( posicionDentroTablero(fila, columna) )
@@ -194,7 +197,8 @@ public class Tablero extends java.util.Observable implements Serializable {
      * @param movimiento el movimiento que sigue la ficha
      * @return 
      * true si mueve la ficha sin problemas
-     * false si intentamos mover una ficha vacia o intentamos mover a una posicion ocupada
+     * false si intentamos mover una ficha vacia o intentamos mover a una 
+     * posicion ocupada
      */
     public boolean moverFicha(Movimiento movimiento) {
         
@@ -268,7 +272,8 @@ public class Tablero extends java.util.Observable implements Serializable {
     }
         
     /**
-     * Comprueba que la fila y la columna se encuentran dentro de los limites del tablero
+     * Comprueba que la fila y la columna se encuentran dentro de los limites 
+     * del tablero
      * 
      * @param fila la fila
      * @param columna la columna

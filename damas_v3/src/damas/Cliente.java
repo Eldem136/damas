@@ -91,7 +91,8 @@ public class Cliente {
             System.out.println("leo puerto: " + puerto);
             
         } catch (Exception ex) {
-            vista.mostrarError("Error al cargar los datos de la conexion con el servidor");
+            vista.mostrarError("Error al cargar los datos de la conexion con el "
+                    + "servidor");
         } 
     }
     
@@ -139,11 +140,12 @@ public class Cliente {
                                vista.addControlador(controlador);
                                break;
                            case MensajesConexion.PERDEDOR:
-                               vista.mostrarFinal("Has perdido, buuuuu!");
+                               vista.mostrarFinal("Has perdido");
                                vista.addControlador(controlador);
                                break;
                            case MensajesConexion.ACEPTAR_RETO:
-                               mensajeEntrada = entradaObjetos.readObject().toString();
+                               mensajeEntrada = 
+                                       entradaObjetos.readObject().toString();
                                aceptarReto(mensajeEntrada);
                                break;
                            case MensajesConexion.RETO_ACEPTADO:
@@ -153,7 +155,7 @@ public class Cliente {
                                vista.mostrarError("El otro usuario ha "
                                        + "rechazado el reto");
                                break;
-                           case MensajesConexion.SALIR:
+                           case MensajesConexion.CERRAR:
                                mensajeEntrada = null;
                                break;
                            case MensajesConexion.FIN_TURNO:
@@ -197,13 +199,14 @@ public class Cliente {
         ArrayList<String> listaJugadores = new ArrayList<>();
         try {
             String mensaje = entradaObjetos.readObject().toString();
-            while ( ! mensaje.equals("OK") ) {
+            while ( ! mensaje.equals(MensajesConexion.OK) ) {
                 listaJugadores.add(mensaje);
                 mensaje = entradaObjetos.readObject().toString();
             }
             
         } catch (IOException ex) {
-            vista.mostrarError("Error de entrada/salida al leer la lista de usuarios");
+            vista.mostrarError("Error de entrada/salida al leer la lista de "
+                    + "usuarios");
         } catch (ClassNotFoundException ex) {
             vista.mostrarError("Error de clases al leer la lista de usuarios");
         } finally {
@@ -292,9 +295,9 @@ public class Cliente {
             if ( ! colorFicha.equals(miColor) )
                 return;
             else if ( esUnPeon )
-                movimientosValidos = movimientosPeonValidos(fila, columna, colorFicha);
+              movimientosValidos = movimientosPeonValidos(fila, columna, colorFicha);
             else
-                movimientosValidos = movimientosDamaValidos(fila, columna, colorFicha);
+              movimientosValidos = movimientosDamaValidos(fila, columna, colorFicha);
          
             
             for (Movimiento m : movimientosValidos) {
@@ -311,7 +314,8 @@ public class Cliente {
     * @param color el color del peon
     * @return una lista con todos los movimientos posibles y validos
     */
-    private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, String color) {
+    private ArrayList<Movimiento> movimientosPeonValidos(int fila, int columna, 
+            String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>(2);
         
@@ -319,19 +323,32 @@ public class Cliente {
             return movimientosValidos;
         
         int avanceFila = ( color.equals(Ficha.BLANCA) ? -1 : 1 );
-        
-        if ( tablero.estaLaCasillaVacia(fila + avanceFila, columna - 1) )
-            movimientosValidos.add(new Movimiento(fila, columna, fila + avanceFila, columna - 1));
-        else if ( ! tablero.fichaDelMismoColor(fila + avanceFila, columna - 1, color) )
-            if ( tablero.estaLaCasillaVacia(fila + ( 2 * avanceFila ), columna - 2) )
-                movimientosValidos.add(new Movimiento(fila, columna, fila + (2 * avanceFila), columna - 2));
-        
-        if ( tablero.estaLaCasillaVacia(fila + avanceFila, columna + 1) )
-            movimientosValidos.add(new Movimiento(fila, columna, fila + avanceFila, columna + 1));
-        else if ( ! tablero.fichaDelMismoColor(fila + avanceFila, columna + 1, color) )
-            if ( tablero.estaLaCasillaVacia(fila + ( 2 * avanceFila ), columna + 2) )
-                movimientosValidos.add(new Movimiento(fila, columna, fila + (2 * avanceFila), columna + 2));
-        
+        int filaFinal = fila + avanceFila;
+        int columnaFinal = columna - 1;
+        if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) ) {
+            movimientosValidos.add(
+                    new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        else if ( ! tablero.fichaDelMismoColor(filaFinal, columnaFinal, color)) {
+            filaFinal += avanceFila;
+            columnaFinal--;
+            if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
+                movimientosValidos.add(
+                        new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        filaFinal = fila + avanceFila;
+        columnaFinal = columna + 1;
+        if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) ) {
+            movimientosValidos.add(
+                    new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }
+        else if ( ! tablero.fichaDelMismoColor(filaFinal, columnaFinal, color)) {
+            filaFinal += avanceFila;
+            columnaFinal++;
+            if ( tablero.estaLaCasillaVacia(filaFinal, columnaFinal) )
+                movimientosValidos.add(
+                        new Movimiento(fila, columna, filaFinal, columnaFinal));
+        }      
         return movimientosValidos;
     }
     
@@ -343,17 +360,22 @@ public class Cliente {
     * @param color el color de la dama
     * @return una lista con todos los movimientos posibles y validos
     */
-    private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, String color) {
+    private ArrayList<Movimiento> movimientosDamaValidos(int fila, int columna, 
+            String color) {
         
         ArrayList<Movimiento> movimientosValidos = new ArrayList<>();
         
         if ( color.equals(Ficha.VACIA) )
             return movimientosValidos;
         
-        rellenarMovimientosDamaEnDireccion(fila, columna, 1, 1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, 1, -1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, -1, 1, color, movimientosValidos);
-        rellenarMovimientosDamaEnDireccion(fila, columna, -1, -1, color, movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, 1, 1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, 1, -1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, -1, 1, color, 
+                movimientosValidos);
+        rellenarMovimientosDamaEnDireccion(fila, columna, -1, -1, color, 
+                movimientosValidos);
         
         return movimientosValidos;
     }
@@ -369,7 +391,9 @@ public class Cliente {
     * @param movimientos la lista de los movimientos posibles donde
     * añadira los que encuentre
     */
-    private void rellenarMovimientosDamaEnDireccion(int fila, int columna, int aumentoFila, int aumentoColumna, String color, ArrayList<Movimiento> movimientos) {
+    private void rellenarMovimientosDamaEnDireccion(int fila, int columna, 
+            int aumentoFila, int aumentoColumna, String color, 
+            ArrayList<Movimiento> movimientos) {
         
         boolean finComprobacion = false;
         boolean fichaComida = false;
@@ -380,8 +404,10 @@ public class Cliente {
         while ( ! finComprobacion  )  {
             
             if ( tablero.estaLaCasillaVacia(filaInvestigada, columnaInvestigada) )
-                movimientos.add(new Movimiento(fila, columna, filaInvestigada, columnaInvestigada));
-            else if ( ! tablero.fichaDelMismoColor(filaInvestigada, columnaInvestigada, color) 
+                movimientos.add(new Movimiento(fila, columna, filaInvestigada, 
+                        columnaInvestigada));
+            else if ( ! tablero.fichaDelMismoColor
+                        (filaInvestigada, columnaInvestigada, color) 
                     && ! fichaComida)
                 fichaComida = true;
             else
@@ -391,7 +417,6 @@ public class Cliente {
             columnaInvestigada += aumentoColumna;
             
         }
-        
     }
     
     /**
