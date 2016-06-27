@@ -62,8 +62,10 @@ public class HiloPartida implements Runnable{
                 iniciarPartida();
             } else {
                 jugador1.enviaMensaje(MensajesConexion.RETO_RECHAZADO);
-                Servidor.instancia().addUsuarioDisponible(jugador1.getNombreCliente());
-                Servidor.instancia().addUsuarioDisponible(jugador2.getNombreCliente());
+                Servidor.instancia().addUsuarioDisponible(
+                        jugador1.getNombreCliente());
+                Servidor.instancia().addUsuarioDisponible(
+                        jugador2.getNombreCliente());
             }
             
         } catch (InterruptedException ex) {
@@ -121,7 +123,8 @@ public class HiloPartida implements Runnable{
             //el movimiento que realizó el jugador no era válido y tiene que 
             //repetirlo hasta elegir uno válido.
             } else {
-                (( turno % 2 ) == 0 ? jugador2 : jugador1).enviaMensaje(MensajesConexion.EMPIEZA_TURNO);
+                (( turno % 2 ) == 0 ? jugador2 : jugador1).enviaMensaje(
+                        MensajesConexion.EMPIEZA_TURNO);
             }
             
             comprobarFinalPartida();
@@ -233,12 +236,12 @@ public class HiloPartida implements Runnable{
     
     private void rendirPartida(){
         if ( ( turno % 2 ) == 0 ){
-            jugador1.haGanado();
-            jugador2.haPerdido();
-        }
-        else{
             jugador2.haGanado();
             jugador1.haPerdido();
+        }
+        else{
+            jugador1.haGanado();
+            jugador2.haPerdido();
         }
     }
     

@@ -6,9 +6,7 @@
 package damas_v3_server;
 
 import damas.Jugador;
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.sql.*;
@@ -25,10 +23,10 @@ import reglas.Reglas;
 
 public class Servidor{
     
+    static final int puerto = 10000;
     ServerSocket serverSocket;
     Socket socket;
-    BufferedReader entrada;
-    PrintWriter salida;
+    
     final String dbUrl = "jdbc:mysql://web-ter.unizar.es:3306/648391";
     final String usuario = "648391";
     final String pass = "648391";
@@ -62,10 +60,10 @@ public class Servidor{
     private Servidor(){
         
         try {
-            serverSocket = new ServerSocket(10000);
+            serverSocket = new ServerSocket(puerto);
         } catch (IOException ex) {
             Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        } 
         conectarABaseDatos();
         
         ListaConexionesClientes = new HashMap<>();
@@ -106,7 +104,8 @@ public class Servidor{
                 
                 nuevaConexion.start();
             } catch (IOException ex) {
-                Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+                System.err.println("Error Servidor\n\tError de entrada/salida "
+                        + "al esperar clientes");
             }
         }
     }
@@ -127,11 +126,11 @@ public class Servidor{
             statement.close();
             
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(Servidor.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            System.err.println("Error Servidor\n\tError de clases al conectar a"
+                    + " la base de datos");
         } catch (SQLException ex) {
-            Logger.getLogger(Servidor.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            System.err.println("Error Servidor\n\tError de sql al conectar a "
+                    + "la base de datos");
         }
     }
     
@@ -150,8 +149,8 @@ public class Servidor{
                       (QUERY_JUGADOR_UPDATE_GANADOR, nombre));
             statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Servidor.class.getName())
-                    .log(Level.SEVERE, null, ex);
+            System.err.println("Error Servidor\n\tError de sql al aumentar las "
+                    + "victorias de un jugador");
             return false;
         }
         return true;
@@ -166,15 +165,18 @@ public class Servidor{
     public synchronized boolean insertarJugadorEnBD(String nombre){
         try {
             statement = conexion.createStatement();
-            ResultSet resultset = statement.executeQuery(String.format(QUERY_BUSCAR_JUGADOR, nombre));
+            ResultSet resultset = statement.executeQuery(
+                    String.format(QUERY_BUSCAR_JUGADOR, nombre));
             
             if(!resultset.first()){
-                statement.execute(String.format(QUERY_JUGADOR_INSERTAR_NUEVO, nombre));
+                statement.execute(
+                        String.format(QUERY_JUGADOR_INSERTAR_NUEVO, nombre));
             }
 
             statement.close();
         } catch (SQLException ex) {
-            Logger.getLogger(Servidor.class.getName()).log(Level.SEVERE, null, ex);
+            System.err.println("Error Servidor\n\tError de sql al insertar a un "
+                    + "jugador en la base de datos");
             return false;
         }
         return true;
@@ -206,11 +208,14 @@ public class Servidor{
      * @param retado  -- jugador que es retado.
      */
     public void enviarReto(String retador, String retado) {
-        HiloOyenteThread threadJugador1 = (HiloOyenteThread) ListaConexionesClientes.get(retador);
-        HiloOyenteThread threadJugador2 = (HiloOyenteThread) ListaConexionesClientes.get(retado);
+        HiloOyenteThread threadJugador1 = (HiloOyenteThread) 
+                ListaConexionesClientes.get(retador);
+        HiloOyenteThread threadJugador2 = (HiloOyenteThread) 
+                ListaConexionesClientes.get(retado);
         usuariosConectadosDisponibles.remove(retador);
         usuariosConectadosDisponibles.remove(retado);
-        poolPartidas.execute(new HiloPartida(threadJugador1, threadJugador2, reglamento));
+        poolPartidas.execute(
+                new HiloPartida(threadJugador1, threadJugador2, reglamento));
     }
     
     /**
